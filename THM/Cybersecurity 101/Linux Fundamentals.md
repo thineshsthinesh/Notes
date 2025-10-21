@@ -170,6 +170,193 @@ A: /tmp
 Q: Name the home directory of the root user 
 A: /root
 
+# Linux Fundamentals Part 3
 
+## Terminal Text Editors 
+
+### Nano 
+
+To create or edit a file using nano, simply use **nano filename**
+nano has a few features 
+- Searching for text (Ctrl + W)
+- Copying and Pasting (Ctrl + K for cut Ctrl + U for paste)
+- Jumping to a line number (Ctrl + _ )
+- See number of line you are on (Alt + 6)
+- Exit (Ctrl + X)
+
+### VIM
+
+It's a advanced text editor with lot of features 
+- Customizable 
+- Syntax highlighting
+- VIM works on almost all terminals
+- Lot of tutorials and cheatsheet available 
+
+Q: Edit "task3" in "tryhackme"'s home directory using Nano. What's the flag ? 
+A: THM{TEXT_EDITORS}
+
+## General / Useful Utilities 
+
+### Downloading files (wget)
+
+wget command let's you download files from web via HTTP, to download a file from web 
+
+```bash
+wget http://path-to-file/file
+```
+
+
+### Transferring files from your host - SCP
+
+Secure copy or SCP, is used to securely copy files from the host to remote system suing the SSH protocol 
+
+To send a file : 
+```bash 
+scp file <usernmae>@<IP>:/path-to-send/
+```
+
+To receive a file : 
+```bash
+scp <username>@<IP>:/path-to-file/ file
+```
+
+### Serving files from your host - WEB 
+
+You can serve files on your machine using a **HTTP SERVER** , This is a python module that let's you host HTTP Server on your local host 
+
+Other systems in the same network can get those files using **curl** or **wget**
+
+To start a server :
+```bash
+python3 -m http.server 
+```
+
+To get a file from server : 
+```bash
+wget http://<IP>:<PORT>/Path-to-file
+```
+
+Q: What are the contents ? 
+A: THM{WGET_WEBSERVER}
+
+
+## Processes 101
+
+processes are programs running on the machine, They are managed by the kernel, each process has a PID in the order the process starts 
+
+### Viewing Processes
+
+**ps** command can be used to get a list of running processes on the user's session it includes, 
+
+- PID
+- Session that running the process
+- CPU time used
+- Command that is being executed 
+
+**ps aux** command can be used to see system processes and processes that are run by other users 
+
+**top** command give live statistics of running processes which refreshes every ten seconds 
+
+### Managing Processes 
+
+You can terminate a process using **kill** command followed by PID 
+**Ex: kill 1337**
+
+We can also send signals when killing processes using **-s** flag  :
+
+- SIGTERM - Kill the process, but allow it do cleanup beforehand
+- SIGKILL - Kill the process, doesn't do any cleanup
+- SIGSTOP - Stop/suspend a process 
+
+#### Starting Processes/Services
+
+The Process ID 0 is the process that starts when the system boots. This is the system's **init**
+Once the system boots **systemd** is on of the first processses that are started. Any process of software that we want to start will be a child process of systemd
+**systemctl** - This command allows to interact with systemd process
+
+**systemctl syntax:** 
+```bash 
+systemctl [option] [service]
+```
+
+systemctl has 4 options: 
+
+- start - Start the service
+- stop - Stop the service 
+- enable - start on the boot-up of system 
+- disable - remove from boot-up of system 
+
+#### Backgrounding and Foregrounding in Linux 
+
+Processes can run in two states : background and foreground 
+
+**&** operator is used to background a process by just appending it (or)
+You can also background a running process by pressing **Ctrl+Z** which will pause the process then we can use **bg** to background that process, **fg** foreground that process 
+
+
+Q: If we were to launch a process where the previous ID was "300", what would be the ID of this new process be ? 
+A: 301
+
+Q: If we wanted to cleanly kill a process, what signal would we send it ? 
+A: SIGTERM 
+
+Q: Locate the process that is running on the deployed instance (MACHINE_IP). What is flag is given ? 
+A: THM{PROCESSES}
+
+Q: What command would we use to stop the service "myservice" ?
+A: systemctl stop myservice
+
+Q: What command would we use to start the same service on the boot-up of the system ?
+A: systemctl enable myservice 
+
+Q: what command would we use to bring a previously backgrounded process to back to the foreground?
+A: fg 
+
+## Automation 
+
+**cronjobs** are used to schedule a certain action or task to perform after system boot 
+**crontab** is the process that is responsible for managing cronjobs
+
+**crontab** is a special file that is recognised by cron processes to execute 
+
+**crontab** requires 6  values : 
+
+- MIN - What minute to execute at 
+- HOUR - What hour to execute at 
+- DOM - What day of the month 
+- MON  - What month of the year 
+- DOW - what day of the week 
+- CMD - The command to execute at 
+
+**Format example :**
+
+```
+0 */12 * * * cp file /direcotry
+```
+
+\* is used to specify wildcard for the values
+
+Q: When will the  crontab on the deployed instance (MACHINE_IP) run ?
+A: @reboot
+
+## Package 
+
+developers submit their softwares to the "apt" repository. If approved they are available for everyone to use 
+
+You can add custom repositories using **add-apt-repository** command 
+
+Also you can use **dpkg** to install from package installers 
+
+You can remove package or repository by using **add-apt-repository --remove :ppa:PPA_Name/ppa**  (or) apt remvoe \[software-name]
+
+## System logs 
+
+As previously mentioned logs are stored in the **/var/log** directory, where logs of multiple services are present, we can investigate these logs
+
+Q: What is the IP address of the user who visited the site ?
+A: 10.9.232.111
+
+Q: What file did they access ? 
+A: catsanddogs.jpg 
 
 
