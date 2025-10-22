@@ -78,7 +78,7 @@ Lot of commands allow arguments to be supplied these arguments are called flags 
 
 with **--help** option you can view the flags supported by a command 
 
-### The man Page 
+## The man Page 
 
 The man(ual) page is the documentation for the commands in linux, which are available on machine as well as online 
 
