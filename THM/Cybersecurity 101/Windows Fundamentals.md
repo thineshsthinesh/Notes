@@ -366,3 +366,166 @@ Q: What is the command to open the Registry Editor ?
 A: regedit32.exe
 
 
+# Windows Fundamentals Part 3
+
+## Windows update 
+
+Windows Update is a service to provide security updates and patches for the windows operating system and other Microsoft products 
+
+Updates are typically released on 2nd Tuesday of the month. This day is called Patch Tuesday. 
+
+Q: There were two definition updates installed in the attached VM. On what date were these updates installed ? 
+A: 5/3/2021
+
+## Windows Security 
+
+Our main focus is on Protection Areas: 
+
+- Virus & threat protection
+- Firewall & network protection
+- App & browser control 
+- Device security 
+
+![[windows-security2.png]]
+
+Has three status icons : 
+
+- **Green** : means your device is sufficiently protected
+- **Yellow** : means there is a safety recommendation 
+- **Red** : Means a warning that needs immediate attention
+
+Q: Checking the Security section on your VM, which area needs immediate attention ?
+A: Virus & threat protection 
+
+### Virus and Threat protection 
+
+Virus and threat protection is divided into two parts: 
+
+- Current threats
+- Virus & threat protection settings 
+
+#### Current threats 
+
+![[windows-security3.png]]
+
+##### Scan Options 
+
+- **Quick Scan** - Checks the common folders where threats are found 
+- **Full Scan** - Checks all files and running programs on your hard disk 
+- **Custom scan** - Choose which files and locations you want to check 
+
+##### Threat History 
+
+- **Last scan** - Windows Defender automatically scans 
+- **Quarantined threats**  - Threats that has been isolated and prevented from running and they will be periodically removed 
+- **Allowed threats** - Identified threats that are allowed to run on your device 
+
+#### Virus & Threat Protection settings 
+
+##### Manage settings 
+
+- **Real-time protection** - Locates and stops malware from installing or running on your device 
+- **Cloud-delivered protection** - Provides increased protection with access to latest protection data in the cloud 
+- **Automatic sample submission** - Send sample files to Microsoft
+- **Controlled Folder Access** - Protect files, folders and memory areas from unauthorized changes
+- **Exclusions** - Windows Defender Antivirus won't scan excluded items 
+- **Notification** - Windows Defender will send notification with information about security of your device 
+
+You can perform on-demand scans on any file / folder by right-clicking and selecting `Scan with Microsoft Defender`
+
+Q: Specifically, what is turned off that Windows is notifying you to turn on ? 
+A: Real-time protection 
+
+### Firewall & network protection 
+
+	A firewall is what controls what is - and more importantly isn't allowed to pass through the ports 
+
+![[windows-firewall.png]]
+
+
+- **Domain** - The domain profile applies to networks where the host can authenticate to a domain controller 
+- **Private** - User assigned profile and used to designate private or home networks 
+- **Public** - Default is public profile, used to designate public networks 
+
+Every firewall profile has two options : **turn the firewall on / off** and **block all incoming connections**
+
+Command to open windows firewall is `WF.msc`
+
+![[windows-firewall4.png]]
+
+We can use this to configure what firewall rule applies to what applications 
+
+
+Q: If you were connected to airport Wi-Fi, what most likely be the active firewall profile ? 
+A: Public network 
+
+### App & browser control 
+
+![[windows-app-control.png]]
+
+
+#### Check apps and files 
+
+- Windows Defender SmartScreen helps protect your device for unrecognized apps and files from the web 
+
+#### Exploit protection 
+
+- Helps protect against attacks 
+	![[windows-exploit-protection.png]]
+
+### Device Security 
+
+Security that comes built into your device 
+
+![[windows-device-sec.png]]
+
+![[windows-mem-integrity2.png]]
+
+![[windows-sec-processor.png]]
+
+![[windows-tpm.png]]
+
+What is Trusted Platform Module (TPM) 
+
+	It is designed to provide hardware-based, security related functions.A TPM chip is a secure crypto processor 
+
+Q: What is TPM ? 
+A: Trusted Platform Module 
+
+### BitLocker 
+
+BitLocker Drive Encryption is a data protection feature that integrates with the operating system and encrypts disks on the OS level 
+
+Q: We should use a removable drive on systems without a TPM version 1.2 or later. What does this removable drive contain ? 
+A: startup key 
+
+
+### Volume Shadow Copy Service 
+
+Volume Shadow Copy Service performs actions to create a consistent snapshot of the data that is to be backed up 
+
+Volume Shadow copies are stored on the System Volume Information folder on each drive 
+
+If VSS is enabled, you can perform following within advanced system settings 
+
+- Create a  restore point
+- Perform system restore 
+- Configure restore settings 
+- Delete restore points 
+
+Right-click on volume drive and select `Configure shadow copies` to edit shadow copies settings for that volume 
+
+Q: What is VSS ? 
+A: Volume Shadow Copy Service 
+
+Further reading material:
+
+- [Antimalware Scan Interface](https://docs.microsoft.com/en-us/windows/win32/amsi/antimalware-scan-interface-portal)[](https://docs.microsoft.com/en-us/windows/win32/amsi/antimalware-scan-interface-portal)
+- [Credential Guard](https://docs.microsoft.com/en-us/windows/security/identity-protection/credential-guard/credential-guard-manage)[](https://docs.microsoft.com/en-us/windows/security/identity-protection/credential-guard/credential-guard-manage)
+- [Windows 10 Hello](https://support.microsoft.com/en-us/windows/learn-about-windows-hello-and-set-it-up-dae28983-8242-bb2a-d3d1-87c9d265a5f0#:~:text=Windows%2010,in%20with%20just%20your%20PIN.)
+- [CSO Online - The best new Windows 10 security features](https://www.csoonline.com/article/3253899/the-best-new-windows-10-security-features.html)
+
+**Note**: Attackers use built-in Windows tools and utilities in an attempt to go undetected within the victim environment.  This tactic is known as Living Off The Land. Refer to the following resource [here](https://lolbas-project.github.io/) to learn more about this.
+
+
+
