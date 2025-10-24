@@ -528,4 +528,274 @@ Further reading material:
 **Note**: Attackers use built-in Windows tools and utilities in an attempt to go undetected within the victim environment.  This tactic is known as Living Off The Land. Refer to the following resource [here](https://lolbas-project.github.io/) to learn more about this.
 
 
+# Active Directory Basics 
+
+## Windows Domain 
+
+Windows  domain is a group of users and computers under the single administration. The main idea behind is to centralize common components of a windows computer network into a single repository called **Active Directory (AD)**. The server that runs the AD service is **Domain Controller(DC)** 
+
+**Advantages** :
+
+- **Centralized identity management** : All users across the network can be configured with minimum effort 
+- **Managing security policies** : You can configure security policies directly from active directory and apply them to users across the network as needed 
+
+Q: In a windows domain, credentials are stored in a centralized repository called...
+A: Active Directory 
+
+Q: The server in charge of running the Active Directory services is called ...
+A: Domain Controller 
+
+
+## Active Directory
+
+The core of Windows Domain is **Active Directory Domain Service (AD DS)**. This service holds information on all of the object on the network. Objects supported include users, groups, machines, printers and shares
+
+### Users 
+
+Users are most common object types in AD, Users are one of objects known as security principals, they can be authenticated by the domain and can be assigned privileges over resources.
+
+Two types of user entities : 
+
+- **People** : peoples that need access to access the network 
+- **Services** : You can also define users to be used by services. Every single service requires user to run, but the service users have privileges need to run their specific service 
+
+### Machines 
+
+For a computer that joins the active directory machine object will be created. Machines are also considered security principals and assigned an account just as regular user but have limited rights within the domain itself 
+
+The machine accounts are local administrator on the assigned computer, if you have the password you can use it to log in 
+
+Machine account passwords are rotated automatically and are generally comprised of 120 random characters 
+
+Machines follow a specific naming scheme. The machine account name is the computer's name followed by a $ sign 
+
+### Security Groups 
+
+Groups are used to assign access rights to files or other resources to entire groups instead of single users. Groups can have both users and machines as members, groups can include other groups as well 
+
+Several groups are created by default in a domain. Here are some of the most important groups in a domain : 
+
+
+| **Security Group** | **Description**                                                                            |
+| ------------------ | ------------------------------------------------------------------------------------------ |
+| Domain Admins      | Administrative privileges over the entire domain.                                          |
+| Server Operators   | Can administer Domain Controllers. They cannot change any administrative group memberships |
+| Backup Operators   | Allowed access to any file, They are used to perform backups of a data on computers.       |
+| Account Operators  | This group can create or modify other accounts in the domain                               |
+| Domain Users       | Includes all existing user accounts                                                        |
+| Domain Computers   | Includes all existing computers in the domain                                              |
+| Domain Controllers | Includes all existing DCs on the domain                                                    |
+
+
+### Active Directory Users and Computers 
+
+To configure users, groups or machines in Active Directory, Login into Domain Controller and open "Active Directory Users and Computers" 
+
+![[678ecc92c80aa206339f0f23-1751295060748.png]]
+
+This is a hierarchy of users, computers and groups exist in the domain. These objects are organized in Organizational Units (OUs) which is used to classify machines. User can only be a part of a single OU at a time 
+
+**Other containers:**
+
+- **Built-in** :  Contains default groups available to any windows host
+- **Computers** : Any machine joining the network will be default to here 
+- **Domain Controllers** : Default OU that contains the DCs in the network 
+- **Users** : Default users and groups that apply to a domain-wide context 
+- **Managed Service Accounts** : Accounts used by services in domain 
+
+#### Security Groups vs OUs
+
+- **Security Groups** are used to grant permissions over resources 
+- **OUs** are for applying policies and specific configurations, a user can only be a member of a single OU at a time 
+
+Q: Which group normally administrates all computers and resources in a domain ? 
+A: Domain Admins
+
+Q: What would be the name of the machine account associated with a machine named TOM-PC ?
+A: TOM-PC$
+
+Q: Suppose our company creates a new department for Quality Assurance. What type of containers should we use to group all Quality Assurance users so that policies can be applied consistently to them ? 
+A: Organizational Units
+
+## Managing Users in AD
+
+### Deleting extra OUs and users 
+
+By default, OUs are protected against accidental deletion. To delete a OU, disable Accidental deletion by 
+
+**View -> Advanced Features -> Object -> Protect Object from accidental deletion**
+
+### Delegation 
+
+You can give control over some OUs to specific users. This process is known as **delegation**. This process help in giving users control over other users on that OU Without needing Domain Administrator to step in. To delegate control over a OU right click that OU and click Delegate control then use Check Names to autocomplete the user 
+
+Since the **Active Directory Users and Computers** is not accessible other users, they need to use PowerShell to make changes to other users 
+
+```powershell
+Set-ADAccountPassword sophie -Reset -NewPassword (Read-Host -AsSecureString -Prompt 'New Password') -Verbose
+```
+
+To change password at next login attempt : 
+
+```powershell
+Set-ADUser -ChangePasswordAtLogon $true -Identity sophie -Verbose
+```
+
+
+Q: What was the flag found on Sophie's desktop
+A: THM{thanks_for_contacting_support}
+
+Q: The process of granting privileges to a user over some OU or other AD Object is called...
+A: delegation 
+
+## Managing Computers in AD 
+
+By default, all the machines in the domain are put in a container called "Computers" 
+
+We can organize them by putting into different OUs 
+
+**Workstations**
+
+This is the device that normal users use to do their work or normal browsing activity. These devices should never have a privileged user signed into them.
+
+**Servers**
+
+Servers are device within the Active Directory used to provide services to users or other servers 
+
+**Domain Controllers**
+
+These devices are most sensitive devices, since they contain hashed passwords for all user accounts within the environment 
+
+Q: After organizing the available computers how many ended up in the Workstations OU ? 
+A: 7
+
+Q: Is it recommendable to create separate OUs for Servers and Workstations? (yay/nay)
+A: yay
+
+
+## Group Policies 
+
+Group Policies are used to push different configuration and security baselines to users depending on their department 
+
+Windows manages such policies as **Group Policy Objects (GPO)**. GPOs are collection of settings that can be applied to OUs
+
+To configure GPOs, Open **Group Policy Management** from start menu 
+
+Then create a GPO under Group Policy Objects and then link it to the OU
+
+![[d82cb9440894c831f6f3d58a2b0538ed.png]]
+
+
+We can see in the image above that 3 GPOs have been created. From those, the `Default Domain Policy` and `RDP Policy` are linked to the `thm.local` domain as a whole, and the `Default Domain Controllers Policy` is linked to the `Domain Controllers` OU only. Something important to have in mind is that any GPO will apply to the linked OU and any sub-OUs under it. For example, the `Sales` OU will still be affected by the `Default Domain Policy`.
+
+![[c9293853549d5126b77bf2de8086e076.png]]
+
+![[bd3665c2569aa8fbe4f7482a5750f018.png]]
+
+![[de35e7c03fafcb5b9df5457181e32652.png]]
+
+
+### GPO distribution
+
+GPOs are distributed to the network via a network share called `SYSVOL`. 
+
+
+Q: What is the name of network share to distribute GPOs to domain machines ? 
+A: sysvol
+
+Q: Can a GPO be used to apply settings to users and computers ? (yay/nay)
+A; yay
+
+## Authentication Methods 
+
+All credentials of a windows domain is stored in the Domain Controller. Two protocols are used for network authentication in windows domain : 
+
+**Kerberos** : Default protocol used in recent domain
+**NetNTLM** : Legacy authentication protocol 
+
+
+### Kerberos Authentication 
+
+- **User Login & TGT Request:**
+
+	![[d36f5a024c20fb480cdae8cd09ddc09f.png]]
+    - The user sends their username and a timestamp (encrypted with a key from their password) to the KDC.
+        
+    - The KDC responds with a **Ticket Granting Ticket (TGT)** and a **Session Key**.
+        
+    - The TGT is encrypted with the KDC’s `krbtgt` account key and allows the user to request service tickets without sending their password each time.
+    - 
+        
+- **Requesting a Service Ticket (TGS):**
+	- ![[84504666e78373c613d3e05d176282dc.png]]
+    
+    - To access a service, the user sends their TGT, username, timestamp (encrypted with the Session Key), and the service name (SPN) to the KDC.
+        
+    - The KDC returns a **Ticket Granting Service (TGS)** and a **Service Session Key**, specific to that service.
+        
+- **Accessing the Service:**
+	    ![[8fbf08d03459c1b792f3b6efa4d7f285.png]]
+	    
+    - The user sends the TGS to the service.
+        
+    - The service decrypts the TGS using its account key, verifies the Service Session Key, and grants access.
+
+
+### NetNTLM Authenticaiton 
+
+![[2eab5cacbd0d3e9dc9afb86169b711ec.png]]
+
+
+1. Client sends and an authentication request to the server 
+2. Server generates random number and sends it as a challenge to client 
+3. The client combines their NTLM password hash with the challenge and other details to generate a response and sends them to the server 
+4. The server forwards the challenge and response to the Domain Controller for verification 
+5. The domain controller uses the challenge to calculate a response and compares that with response from client. If they match client is authenticated. The authentication result is sent back to the server 
+6. The server forwards the authentication result to the client 
+
+Q: Will a current version of Windows use NetNTLM as the preferred authentication protocol by default ? (yay/nay) 
+A: nay
+
+Q: When referring to Kerberos, what type of ticket allows us to request further tickets known as TGS ?
+A: Ticket Granting Ticket
+
+Q: When using NetNTLM, is a user's password transmitted over the network at any point? (yay/nay)
+A: nay
+
+## Trees, Forests and Trusts 
+
+###  Trees
+
+- When a company expands, multiple domains can be used to partition the network for independent management.
+- Domains sharing the same namespace can be joined into a **Tree**.
+- Example: `thm.local` with subdomains `uk.thm.local` and `us.thm.local`. Each domain has its own AD, users, and computers.
+- **Domain Admins** manage their domain; **Enterprise Admins** have privileges across all domains in the enterprise.
+- Trees help control access, delegate management, and apply policies independently.
+
+![[abea24b7979676a1dcc0c568054544c8.png]]
+
+### Forests
+
+- A **Forest** is a union of multiple trees with different namespaces, e.g., after merging companies.
+- Each tree in the forest is managed independently but can coexist in the same network.
+
+![[03448c2faf976db890118d835000bab7.png]]
+
+
+### Trust Relationships
+
+- Trusts allow users in one domain to access resources in another.
+- **One-way trust:** Domain AAA trusts Domain BBB → users in BBB can access AAA resources.
+- **Two-way trust:** Both domains mutually authorize each other (default in trees/forests).
+- Trusts **do not grant automatic access**; administrators still control what resources are authorized.
+
+![[af95eb1a4b6c672491d8989f79c00200.png]]
+
+
+Q: What is a group of Windows domains that share the same namespace called ? 
+A: Tree
+
+Q: What should be configured between two domains for a user in Domain A to access to resource in Domain B ? 
+A: A Trust Relationship 
+
 
