@@ -249,4 +249,205 @@ A: Invoke-Command -ComputerName RoyalFortune -ScriptBlock { Get-Service }
 
 # Linux Shells 
 
+Q: What is the facilitator between the user and the OS ? 
+A: Shell
+
+## How to interact with shell ? 
+
+| commands | What it does              |
+| -------- | ------------------------- |
+| **pwd**  | Print Working DIrectory   |
+| **cd**   | Change Directory          |
+| **ls**   | List out                  |
+| **cat**  | concatenate to read files |
+| **grep** | To find a string in file  |
+
+
+Q: What is the default shell in most linux distributions ? 
+A: Bash
+
+Q: What command utility is used to list down the contents of a directory ? 
+A: ls
+
+Q: Which command utility can help you search for anything in a file ? 
+A: grep 
+
+## Types of Linux Shells 
+
+
+There are multiple shells available, To see which shell currently used : 
+
+```bash
+echo $SHELL
+```
+
+You can list down the available shells by 
+
+```bash
+cat /etc/shells
+```
+
+To switch shell just type the name of shell 
+
+```bash
+zsh
+```
+
+
+### Bourne Again Shell (Bash)
+
+- Shell with scripting capabilities 
+- Tab completion 
+- history of previous commands 
+
+### Friendly Interactive Shell (Fish)
+
+- simple syntax
+- auto spell correction 
+- customizable shell themes 
+- Also provides scripting, tab completion, command history like bash
+
+### Z Shell
+
+- Advanced tab completion with scripting 
+- Auto spell correction for commands 
+- Offers extensive customization
+- Command history and other functionalities 
+
+| Feature             | Bash                                                                                                                           | Fish                                                                                     | Zsh                                                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Full Name           | The full form of Bash is Bourne Again Shell.                                                                                   | The full form of Fish is Friendly Interactive Shell.                                     | The full form of Zsh is Z Shell.                                                                                          |
+| Scripting           | It offers widely compatible scripting with extensive documentation available.                                                  | It has limited scripting features as compared to the other two shells.                   | It offers an excellent level of scripting, combining the traditional capabilities of Bash shell with some extra features. |
+| Tab completion      | It has a basic tab completion feature.                                                                                         | It offers advanced tab completion by giving suggestions based on your previous commands. | Its tab completion capability can be extended heavily by using plugins.                                                   |
+| Customization       | Basic level of customization.                                                                                                  | It offers some good customization through interactive tools.                             | Advanced customization through oh-my-zsh framework.                                                                       |
+| User friendliness   | It is less user-friendly, but being a traditional and widely used shell, its users are quite familiar and comfortable with it. | It is the most user-friendly shell.                                                      | It can be highly user-friendly with proper customization.                                                                 |
+| Syntax highlighting | The syntax highlighting feature is not available in this shell.                                                                | The syntax highlighting is built-in to this shell.                                       | The syntax highlighting can be used with this shell by introducing some plugins.                                          |
+
+Q: Which shell comes with syntax highlighting out-of-the-box feature ? 
+A: Fish
+
+Q: Which shell does not have auto spell correction ? 
+A: Bash 
+
+Q: Which command displays all the previously executed commands of the current session ? 
+A: history 
+
+## Shell Scripting 
+
+A shell script is a set of commands. Used to automate tasks by putting the all the commands in script and running it once.
+
+The extension of the script much be named with extension **.sh** , which is default for bash scripts 
+
+Every script starts with **shebang**
+
+```bash
+#!/bin/bash
+```
+
+### Variables 
+
+A variable stores a value inside it, You can read values using **read** 
+
+```bash
+#!/bin/bash
+echo "Hey, what's your name ?"
+read name 
+echo "Welcome, $name"
+```
+
+Run the script by making it executable 
+
+```bash
+chmod +x ./first_script.sh
+```
+
+Run the script by : 
+
+```bash
+./first-script.sh
+```
+
+### Loops 
+
+Loops are used to code repeating things. example loop script : 
+
+```bash
+#!/bin/bash
+for i in {1..10};
+do 
+echo $i
+done 
+```
+
+### Conditional Statements 
+
+Conditional scripts are used to branch code based on If-else conditions 
+
+Example Script  :
+
+```bash
+#!/bin/bash
+echo "Please enter your name first : "
+read name 
+if [ "$name" = "Stewart" ]; then 
+	echo "Welcome Stewart! Here is the secret: THM_Script"
+else
+	echo "Sorry! You are not authorized to access the secret."
+fi
+```
+
+### Comments 
+
+**#** is used to comment in bash script 
+
+Q: What is the shebang used in Bash script ? 
+A: \#/bin/bash
+
+Q: Which command gives executable permissions to a script ? 
+A: chmod +x
+
+Q: Which scripting functionality helps us configure iterative tasks ? 
+A: loops 
+
+## Locker Script 
+
+```bash
+#!/bin/bash 
+
+username=""
+company=""
+pin=""
+
+for i in {1..3}; do 
+	if [ $i -eq 1 ]; then 
+		echo "Enter your username :"
+		read username 
+	elif [ $i -eq 2 ]; then 
+		echo "Enter your company name :"
+		read company
+	else
+		echo "Enter your PIN :"
+		read pin
+	fi
+done 
+
+if [ "$username" = "John"] && [ "$company" = "TryHackMe" ] && [ "$pin" = "7385" ]; then 
+	echo "Authentication Sucessful"
+else
+	echo "Authentication Denied"
+fi 
+```
+
+Q: What would be the correct PIN to authenticate in the locker script ?
+A: 7385
+
+### Practical Exercise 
+
+Q: which file has the keyword 
+A: authentication.log
+
+Q: Where is cat sleeping ? 
+A: Under the table 
+
+
 
