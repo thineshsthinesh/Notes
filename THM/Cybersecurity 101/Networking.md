@@ -165,11 +165,159 @@ Q: Which of the following IP addresses is not a valid IP address ?
 A: 192.168.305.19
 
 
+## UDP and TCP 
+
+### UDP
+
+UDP (User Datagram Protocol) is a connectionless transport layer protocol, **IP address** is used to identify hosts, , but to target specific process on the host **port number** is used that ranges from **1 to 65535**. UDP doesn't provide **confirmation**
+
+### TCP 
+
+TCP (Transmission Control Protocol), is a connection-oriented transport protocol. 
+
+TCP establishes a **connection** before data can be sent. Each data octet has **sequence numbers**, used to identify lost or duplicated packets. The receiver acknowledges with an **acknowledgement number** 
+
+TCP connection established using **three-way-handshake**: 
+
+1. **SYN packet** : Client initiates by sending initial sequence number SYN packet to client 
+2. **SYN-ACK Packet** : The server responds with initial sequence number of it's own with a SYN-ACK packet 
+3. **ACK packet**: Client sends back the ACK packet 
+
+![[5f04259cf9bf5b57aed2c476-1719849036216.svg]]
 
 
+Q: Which protocol required three-way handshake ? 
+A: TCP 
+
+Q: What is the approximate number of port numbers (in thousands) ? 
+A: 65
+
+## Encapsulation 
+
+**Encapsulation** refers to every layer adding a **header** or **trailer** to the data and sending the **encapsulated unit** to the layer below
+
+- **Application data** : application format it's data and sends it 
+- **Transport protocol segment or datagram** : The transport layer adds **TCP header** (**segment**) or **UDP header** (**datagram**) and sends it 
+- **Network Packet** : Adds **IP header**, IP **packet** is sent 
+- **Data link frame** : The Ethernet or Wi-Fi adds **header** and **trailer**, creating **frame**
 
 
+![[5f04259cf9bf5b57aed2c476-1719849061418.svg]]
 
+
+Q: On a Wi-Fi, within what will an IP packet be encapsulated ? 
+A: Frame 
+
+Q: What do you call the UDP data unit that encapsulates the application data ? 
+A: Datagram 
+
+Q: What do you call the data unit that encapsulates the application data sent over TCP 
+A: Segment 
+
+
+## Telnet 
+
+The TELNET (Teletype Network) is a protocol used for remote administration 
+
+Q: Use telnet to connect the web server on MACHINE_IP. What is the name and version of the HTTP server ? 
+A: lighttpd/1.4.63
+
+Q: What flag did you get when you viewed the page ? 
+A: THM{TELNET_MASTER}
+
+# Network Essentials 
+
+## DHCP 
+
+DHCP is an application-level protocol that relies on **UDP** used to automatically configure network. **DHCP Server** listens on **port 67** and client sends from **port 68**
+
+DHCP follows 4 steps: 
+
+![[5f04259cf9bf5b57aed2c476-1719849114115.svg]]
+
+1. **DHCP Discover** : Client broadcasts DHCPDISCOVER seeking DHCP server 
+2. **DHCP Offer**: Server responds with DHCPOFFER with available IP address 
+3. **DHCP Request**: Client sends DHCPREQUEST to indicate it accepts IP address 
+4. **DHCP Acknowledge**: Server responds DHCPACK to confirm IP is assigned 
+
+![[5f04259cf9bf5b57aed2c476-1719849148646.svg]]
+
+
+**DHCP Server** provides the following : 
+
+- The IP address
+- The gateway to route 
+- DNS server 
+
+
+Q: How many steps does DHCP use to provide network configuration ? 
+A: 4
+
+Q: What is the destination IP address that a client uses when it sends a DHCP Discovery packet ? 
+A: 255.255.255.255
+
+Q: What is the source IP address a client uses when trying to get IP network configuration over DHCP ? 
+A: 0.0.0.0
+
+## ARP Bridging 
+
+For two devices on the same Ethernet to communicate it requires each other's MAC addresses 
+
+The Ethernet frame header contains : 
+
+- **Destination MAC address**
+- **Source MAC address**
+- **Type (IPv4)**
+
+**Address Resolution Protocol (ARP)** is used to map IP address to MAC address by sending a **ARP Request** and receiving **ARP Replay**
+
+**ARP** is **layer 2** that allows translation from **layer 3** to **layer 2** 
+
+Q: What is the destination MAC address used in an ARP Request ? 
+A: ff:ff:ff:ff:ff:ff
+
+Q: In the example above, what is the MAC address of 192.168.66.1 ?
+A: 44:df:65:d8:fe:6c
+
+## ICMP 
+
+**Internet Control Message Protocol (ICMP)** is mainly used for **network diagnostics** and error **reporting**.
+
+- **Ping** uses ICMP to test **connectivity** and measures **Round-Trip-Time (RTT)**
+- **traceroute** uses ICMP to find **route** from **host to target** 
+
+Q: Using the example images above, how many bytes were sent in the echo (ping) request ? 
+A: 
+
+Q: Which IP header filed does the traceroute command require to become zero ? 
+A: TTL
+
+## Routing 
+
+Routing Protocols : 
+
+- **OSPF(Open Shortest Path First)** : Routing protocol that allows to routers to share info about network topology to find best routes 
+- **EIGRP (Enhanced Interior Gateway Routing Protocol)** : Is  a CISCO proprietary that uses multiple routing algorithm 
+- **BGP (Border Gateway Protocol)**: BGP is primarily used in internet to exchange routing info **between networks**, It helps in routing **across multiple networks** 
+- **RIP (Routing Information Protocol)**: Simple routing protocol used in small networks. Routers share **number of hops** and **networks** they reach which is build into **routing table** 
+
+Q: Which routing protocol discussed in the task is a Cisco proprietary protocol ?
+A: EIGRP
+
+## NAT
+
+NAT is used to provide **one public IP address** to many **Private IP addresses** 
+
+Router that uses NAT creates a **table** that maps **internal IP addresses and port number** with it's **external IP address and port number**
+
+Q: In the network diagram above, what is the public IP that the phone will appear to use when accessing the internet 
+A: 212.3.4.5
+
+Q: Assuming that the router has infinite processing power, approximately speaking, how many thousand simultaneous TCP connection can it maintain ? 
+A: 65
+
+Q: Click on the View Site button to access the related site. Please follow the instruction on the site to obtain the flag. 
+A: THM{computer_is_happy}
 
 
 
