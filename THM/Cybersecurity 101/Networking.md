@@ -320,4 +320,107 @@ Q: Click on the View Site button to access the related site. Please follow the i
 A: THM{computer_is_happy}
 
 
+# Networking Core protocols 
 
+## DNS
+
+**Domain Name System**, responsible for mapping domain name to an IP address. It's **Application Layer** protocol, Uses UDP port 53. Has DNS records :
+- **A record** : Maps hostname to IPv4 address 
+- **AAAA Record** : Maps hostname to IPv6 address 
+- **CNAME Record** : Canonical Name maps domain name to another domain name
+- **MX Record** : **Mail Exchange** record specifies mail server responsible 
+
+Q: Which DNS record type refers to IPv6 ? 
+A: AAAA
+
+Q: Which DNS record type refers to email server ? 
+A: MX
+
+## WHOIS 
+
+**WHOIS** records contains domains registrant records publicly,**whois** is the command used 
+
+![[Pasted image 20251027174229.png]]
+
+
+![[Pasted image 20251027174209.png]]
+
+
+Q: When was the x.com record created ? Provide the answer in YYYY-MM-DD format 
+A: 1993-04-02
+
+Q: When was the twitter.com record created ? Provide the answer in YYYY-MM-DD format 
+A: 2000-01-21
+
+## HTTP(S)
+
+**HTTP** stands for **Hyper Text Transfer Protocol** and S for secure. TCP protocol used by web browser to communicate with web servers 
+
+Common methods web browser uses : 
+
+- **GET** get data from the server 
+- **POST** submit data to the server 
+- **PUT** create new or update existing info
+- **DELETE** delete file or resources 
+
+**HTTP** uses **80** and **HTTPS** uses **443** 
+
+Q: Use telnet to access the file flag.html on MACHINE_IP. What is the hidden flag ? 
+A: THM{TELNET-HTTP}
+
+## FTP 
+
+**File Transfer Protocol (FTP)** is designed for **file transfer** 
+
+common **commands** in FTP  : 
+- **USER** to input username 
+- **PASS** to enter password 
+- **RETR** used to download a file
+- **STOR** used to upload a file 
+
+FTP server listens on TCP **port 21** 
+
+Q: Using the FTP client ftp on the AttackBox, access the FTP server at 10.201.111.228 and retrieve flag.txt. What is the flag found ? 
+A: THM{FAST-FTP}
+
+
+## SMTP 
+
+**Simple Mail Transfer Protocol(SMTP)** is used for sending mails 
+
+Common **commands** in **SMTP** : 
+
+- **HELO** or **EHLO** initiates SMTP session
+- **MAIL FROM** specifies sender email address
+- **RCPT TO** specifies recipient's email address 
+- **DATA** content of the email message 
+- **.** indicate the end of email 
+
+**SMTP** listens on TCP port **25**
+
+Q: Which SMTP command indicates that the client will start the contents of the email message ? 
+A: DATA
+
+Q: What does the email client send to indicate that the email message has been fully entered 
+A: .
+
+## POP3 
+
+The **Post Office Protocol** (POP3)  is designed to communicate with mail server to **retrieve email messages** 
+
+common POP3 commands : 
+
+- **USER \<username>** : the username 
+- **PASS \<password>** : the user password
+- **STAT** : requests number of messages and total size 
+- **RETR \<message_number>** retrieves specified message
+- **DELE \<message_number>** deletes message 
+- **QUIT** : ends POP3 session 
+
+**POP3** uses TCP **port 110**
+
+Q: Looking at the traffic exchange, what is the name of the POP3 server running on the remote server ?
+A: Dovecot
+
+Use telnet to connect to 10.201.111.228's POP# server, What is the flag contained in the fourth message 
+A: THM{TELENT_RETR_EMAIL}
