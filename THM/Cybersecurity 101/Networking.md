@@ -575,7 +575,7 @@ open `randy-chromium.pcapng` in Wireshark and import TLS keys to decrypt the tra
 
 
 Q: One of the packets contains login credentials. What password did the user submit ? 
-A: 
+A: THM{B8WM6P}
 
 
 
