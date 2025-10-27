@@ -424,3 +424,160 @@ A: Dovecot
 
 Use telnet to connect to 10.201.111.228's POP# server, What is the flag contained in the fourth message 
 A: THM{TELENT_RETR_EMAIL}
+
+## IMAP
+
+**IMAP** is used for **multiple email clients** to use the **same mail server**, that allows synchronizing **read, move and delete** messages 
+
+common **IMAP** commands :
+
+- **LOGIN \<username> \<password>** authenticate user 
+- **SELECT \<mailbox>** select mailbox folder
+- **FETCH \<mail_number> \<data_item_name>** example: fetch 3 body\[] to fetch header and body
+- **MOVE \<sequence_set> \<mailbox>** move message to another mailbox
+- **COPY \<sequence_set> \<data_item_name>** copies messages to another mailbox
+- **LOGOUT** logs out 
+
+**IMAP Uses TCP port 143** 
+
+
+Q: What IMAP command retrieves the fourth email message ? 
+A: FETCH  4 body\[]
+
+|**Protocol**|**Transport Protocol**|**Default Port Number**|
+|---|---|---|
+|TELNET|TCP|23|
+|DNS|UDP or TCP|53|
+|HTTP|TCP|80|
+|HTTPS|TCP|443|
+|FTP|TCP|21|
+|SMTP|TCP|25|
+|POP3|TCP|110|
+|IMAP|TCP|143|
+
+# Networking Secure Protocols 
+
+## TLS 
+
+TLS is a **cryptographic protocol** that operates at OSI model's **transport layer**. It allows **secure communication** between client and server. TLS is built on top of SSL 3.0 
+
+Simple addition of TLS, **HTTP, DNS, MQTT and SIP** become **HTTPS, DoT(DNS over TLS), MQTTS and SIPS**
+
+### TLS process : 
+
+- The server needs to get a TLS certificate
+- The server admin creates a **Certificate Signing Request (CSR)** and submits it to a **Certificate Authority (CA)**, CA verifies the CSR and issues a digital certificate. 
+- Once the **certificate signed**, It can be used to identify the server 
+
+- Certificate signed requires annual fees but [Let's Encrpt](letsencrypt.org) offers for free 
+ - There are **self-signed certificates**. Used during development 
+ 
+Q: What is the protocol name that TLS upgraded and built upon ? 
+A: SSL
+
+Q: Which type of certificates should not be used to confirm the authenticity of a server ? 
+A: Self-signed certificate 
+
+## HTTPS 
+
+What **HTTP** does : 
+
+- Establish a **TCP three-way handshake**
+- Communicate using **HTTP** 
+
+What **HTTPS** does : 
+
+- Establish a **TCP three-way handshake** 
+- Establish a **TLS session** 
+- Communicate over **HTTP** protocol 
+
+TLS encrypts the traffic and hides the whole packet even protocol used 
+![[5f04259cf9bf5b57aed2c476-1721903449717.png]]
+
+
+We need **decryption key** the private key to decrypt the traffic to view the contents of HTTP
+
+Q: How many packets did the TLS negotiation and establishment take in the Wireshark HTTPS screenshots above ? 
+A: 8
+
+Q: What is the number of packet that contain GET /login when accessing the website over HTTPS ? 
+A: 10
+
+## SMTPS, POP3S, and IMAPS
+
+**Adding TLS** to **SMTP, POP3, IMAP** turn into **SMTPS, POP3S and IMAPS**
+
+|Protocol|Default Port Number|
+|---|---|
+|HTTP|80|
+|SMTP|25|
+|POP3|110|
+|IMAP|143|
+
+over TLS, uses theseTCP port numbers :
+
+|Protocol|Default Port Number|
+|---|---|
+|HTTPS|443|
+|SMTPS|465 and 587|
+|POP3S|995|
+|IMAPS|993|
+
+Q: If you capture network traffic, in which of the following protocols can you extract login credentials, SMTPS, POP3S or IMAP ?
+A: IMAP 
+
+## SSH 
+
+**SSH** is a replacement over **telnet** . It uses **OpenSSH** released by **OpenBSD**, **SSH** uses **OpenSSH** libraries and **source code** 
+
+**OpenSSH** benefits :
+
+-  **Secure authentication** : public key and 2FA (2 factor authentication) 
+- **Confidentiality** : provides end-to-end encryption
+- **Integrity** : Cryptography protects integrity 
+- **Tunneling** : SSH can create a "tunnel" to route other protocols through SSH. 
+- **X11 Forwarding** : SSH allows to use GUI over the network (-X flag need to mentioned )
+
+**SSH** listens on **port 22**
+
+Q: What is the name of the open-source implementation of the SSH protocol ? 
+A: OpenSSH
+
+## SFTP and FTPS 
+
+**SFTP** stands for **SSH File Transfer Protocol** uses **SSH** to share files, **commands** differ from normal FTP 
+
+**FTPS** stands for **File Transfer Protocol Secure** it uses **TLS over FTP**, **FTPS** uses port **990**
+
+Q: Click on the VIew Site button to access the related site. Please follow the instructions on the site to obtain the flag 
+A: THM{Protocols_secur3d}
+
+## VPN 
+
+VPN simply is a encrypted connection through a **specific routing path** called **tunneling** from VPN client to VPN server the data are only decryptable after they reach the VPN server which **mask the geolocation** to that of the VPN server 
+
+Q: What would you use to connect the various company sites that uses at a remote office can access resources located within the main branch ? 
+A: VPN 
+
+## Challenge 
+
+capture TLS keys from chromium by executing 
+
+```bash
+chromium --ssl-key-log-file=~/ssl-key.log
+```
+
+open `randy-chromium.pcapng` in Wireshark and import TLS keys to decrypt the traffic 
+
+![[5f04259cf9bf5b57aed2c476-1726165322572.png]]
+
+![[5f04259cf9bf5b57aed2c476-1726165340490 1.png]]
+
+
+Q: One of the packets contains login credentials. What password did the user submit ? 
+A: 
+
+
+
+
+
