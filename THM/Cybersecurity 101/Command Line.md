@@ -1,5 +1,12 @@
+---
+tags: #windows #linux #cli #cmd #powershell #bash #scripting #fundamentals
+related:
+- "[[Windows Fundamentals.md]]"
+- "[[Linux Fundamentals.md]]"
+---
 
 # Windows Command Line 
+See also: [[Windows Fundamentals.md]]
 
 ## Basic System Information 
 
@@ -60,7 +67,7 @@ A: TermService
 | copy                | To copy files from one location to another                     |
 | move                | To move files from one location to another                     |
 | del or erase        | To delete a file                                               |
-| \* acts as wildcard |                                                                |
+| * acts as wildcard |                                                                |
 
 Q: What are the file's contents in C:\Treasure\Hunt ? 
 A: THM{CLI_POWER}
@@ -87,6 +94,7 @@ Q: What command can you use to abort a scheduled shutdown ?
 A: shutdown /a
 
 # Windows PowerShell
+See also: [[Windows Fundamentals.md]]
 
 ## What is PowerShell ? 
 
@@ -182,7 +190,7 @@ To show only the details needed, Use **Select-Object**
 Get-ChildItem | Select-Object Name,Length
 ```
 
-**Select-String** is a cmdlet similar to grep in Linux and **findstr** in Windows :
+**Select-String** is a cmdlet similar to grep in Linux and **findstr** in Windows : 
 
 ```PowerShell
 Select-String -Path ".\captain-hat.txt" -Pattern "hat"
@@ -248,6 +256,7 @@ Q: What is the syntax to execute the command **Get-Service** on a remote compute
 A: Invoke-Command -ComputerName RoyalFortune -ScriptBlock { Get-Service }
 
 # Linux Shells 
+See also: [[Linux Fundamentals.md]]
 
 Q: What is the facilitator between the user and the OS ? 
 A: Shell
@@ -383,7 +392,7 @@ done
 
 Conditional scripts are used to branch code based on If-else conditions 
 
-Example Script  :
+Example Script  : 
 
 ```bash
 #!/bin/bash
@@ -401,7 +410,7 @@ fi
 **#** is used to comment in bash script 
 
 Q: What is the shebang used in Bash script ? 
-A: \#/bin/bash
+A: #/bin/bash
 
 Q: Which command gives executable permissions to a script ? 
 A: chmod +x
@@ -447,7 +456,4 @@ Q: which file has the keyword
 A: authentication.log
 
 Q: Where is cat sleeping ? 
-A: Under the table 
-
-
-
+A: Under the table

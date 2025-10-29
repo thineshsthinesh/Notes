@@ -1,3 +1,9 @@
+---
+tags: #windows #os #fundamentals #ntfs #registry #uac #security #activedirectory #filesystems #gui
+related:
+- "[[Command Line.md]]"
+- "[[Networking.md]]"
+---
 
 # Windows Fundamentals Part 1
 ## Desktop GUI 
@@ -331,6 +337,7 @@ Q: What is the command to open Resource Monitor ?
 A: resmon.exe 
 
 ## Command Prompt 
+See also: [[Command Line.md]]
 
 The command prompt  **cmd**, allows a CLI interface to interact with the system let's list out few commands : 
 
@@ -437,6 +444,7 @@ Q: Specifically, what is turned off that Windows is notifying you to turn on ?
 A: Real-time protection 
 
 ### Firewall & network protection 
+See also: [[Networking.md]]
 
 	A firewall is what controls what is - and more importantly isn't allowed to pass through the ports 
 
@@ -525,7 +533,7 @@ Further reading material:
 - [Windows 10 Hello](https://support.microsoft.com/en-us/windows/learn-about-windows-hello-and-set-it-up-dae28983-8242-bb2a-d3d1-87c9d265a5f0#:~:text=Windows%2010,in%20with%20just%20your%20PIN.)
 - [CSO Online - The best new Windows 10 security features](https://www.csoonline.com/article/3253899/the-best-new-windows-10-security-features.html)
 
-**Note**: Attackers use built-in Windows tools and utilities in an attempt to go undetected within the victim environment.  This tactic is known as Living Off The Land. Refer to the following resource [here](https://lolbas-project.github.io/) to learn more about this.
+**Note**: Attackers use built-in Windows tools and utilities in an attempt to go undetected within the victim environment.	 This tactic is known as Living Off The Land. Refer to the following resource [here](https://lolbas-project.github.io/) to learn more about this.
 
 
 # Active Directory Basics 
@@ -796,6 +804,4 @@ Q: What is a group of Windows domains that share the same namespace called ?
 A: Tree
 
 Q: What should be configured between two domains for a user in Domain A to access to resource in Domain B ? 
-A: A Trust Relationship 
-
-
+A: A Trust Relationship

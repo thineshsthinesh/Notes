@@ -1,3 +1,9 @@
+---
+tags: #linux #os #fundamentals #permissions #processes #cli #filesystems
+related:
+- "[[Command Line.md]]"
+- "[[Networking.md]]"
+---
 
 # Linux Fundamentals Part 1
 
@@ -9,6 +15,7 @@ Q: Research: What year was the first release of a Linux operating system ?
 A: 1991
 
 ## Linux Commands 
+See also: [[Command Line.md]]
 
 echo - output text 
 whoami - current logged in user 
@@ -62,6 +69,7 @@ A: echo tryhackme >> passwords
 # Linus Fundamentals Part 2
 
 ## SSH
+See also: [[Networking.md]]
 
 Secure Shell or SSH is a protocol that allows execute commands on other devices remotes it's a encrypted protocol 
 
@@ -212,12 +220,12 @@ Secure copy or SCP, is used to securely copy files from the host to remote syste
 
 To send a file : 
 ```bash 
-scp file <usernmae>@<IP>:/path-to-send/
+scp file \<usernmae>@\<IP>:/path-to-send/
 ```
 
 To receive a file : 
 ```bash
-scp <username>@<IP>:/path-to-file/ file
+scp \<username>@\<IP>:/path-to-file/ file
 ```
 
 ### Serving files from your host - WEB 
@@ -233,7 +241,7 @@ python3 -m http.server
 
 To get a file from server : 
 ```bash
-wget http://<IP>:<PORT>/Path-to-file
+wget http://\<IP>:\<PORT>/Path-to-file
 ```
 
 Q: What are the contents ? 
@@ -357,6 +365,4 @@ Q: What is the IP address of the user who visited the site ?
 A: 10.9.232.111
 
 Q: What file did they access ? 
-A: catsanddogs.jpg 
-
-
+A: catsanddogs.jpg
