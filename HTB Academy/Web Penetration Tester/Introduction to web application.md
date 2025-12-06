@@ -601,3 +601,335 @@ Payload used:
     - **Unique CSRF token per session/request**
     - **SameSite cookie attribute** (Strict / Lax)
     - **Functional protections** (e.g., re-enter password before sensitive actions)
+
+# Back End Components 
+
+## Back End Servers 
+
+### What a Back-End Server Is
+
+- Hardware + operating system that hosts all components needed to run a web application.
+- Executes all tasks and processes in the **Data Access Layer**.
+
+### Back-End Server Software Components
+
+- **Web Server**
+- **Database**
+- **Development Framework**
+
+Additional server software may include:
+
+- Hypervisors
+- Containers
+- Web Application Firewalls (WAFs)
+    
+### Common Back-End Stacks
+
+|Stack|Components|
+|---|---|
+|**LAMP**|Linux, Apache, MySQL, PHP|
+|**WAMP**|Windows, Apache, MySQL, PHP|
+|**WINS**|Windows, IIS, .NET, SQL Server|
+|**MAMP**|macOS, Apache, MySQL, PHP|
+|**XAMPP**|Cross-platform, Apache, MySQL, PHP/Perl|
+
+### Hardware
+
+- Determines **performance** and **stability** of the web application.
+- Large-scale architectures distribute load across **multiple back-end servers**.
+- Web apps may run on:
+    
+    - Physical servers
+    - Data centers
+    - Cloud-hosted virtual machines
+
+## Web Servers 
+
+### What a Web Server Does
+
+- Runs on the back-end server.
+- Handles **HTTP requests** and returns **HTTP responses**.
+- Routes requests to the correct web application pages.
+- Typically listens on **ports 80 (HTTP)** and **443 (HTTPS)**.
+
+### Common HTTP Response Codes
+
+**Successful:**
+
+- **200 OK** – Request succeeded.
+
+**Redirection:**
+
+- **301** – Permanent redirect.
+- **302** – Temporary redirect.
+
+**Client Errors:**
+
+- **400** – Bad request (invalid syntax).
+- **401** – Unauthorized.
+- **403** – Forbidden.
+- **404** – Not found.
+- **405** – Method not allowed.
+- **408** – Request timeout.
+
+**Server Errors:**
+
+- **500** – Internal server error.
+- **502** – Bad gateway.
+- **504** – Gateway timeout.
+    
+### Web Server Functionality
+
+- Accepts text/JSON/binary input.
+- Routes request → runs required logic → returns response.
+- Example tools: **cURL -I** (headers only), **cURL** (view HTML source).
+
+### Common Web Servers
+
+#### 1. Apache
+
+- Most widely used (~40% of the internet).
+- Works well with **PHP**; supports many languages via modules (mod_php, CGI, etc.).
+- Open-source, stable, well-documented.
+- Used by: **Apple, Adobe, Baidu**.
+
+#### 2. NGINX
+
+- ~30% market share; extremely efficient for high-load environments.
+- Asynchronous architecture → handles many concurrent requests.
+- Open-source and widely used by major platforms.
+- Used by: **Google, Facebook, Twitter, Cisco, Intel, Netflix, HackTheBox**.
+
+#### 3. IIS (Microsoft Internet Information Services)
+
+- ~15% market share
+- Runs on **Windows Server**
+- Ideal for **.NET** applications; supports PHP and FTP as well.
+- Integrates well with **Active Directory (Windows Auth)**.
+- Used by: **Microsoft, O365, Skype, StackOverflow, Dell**.
+#### Other Servers
+
+- **Apache Tomcat** – for Java applications.
+- **Node.js** – JavaScript-based backend HTTP server.
+
+## Databases 
+
+### Purpose of Databases
+
+- Store web application content: assets, posts, files, user data (usernames/passwords).
+- Enable **dynamic content** per user.
+- Desired traits: **speed**, **scalability**, **capacity**, **cost-efficiency**.
+
+### Relational Databases (SQL)
+
+#### Key Characteristics
+
+- Use **tables, rows, columns**.
+- Use **keys** to link tables → relationships form a **schema**.
+- Efficient for **structured, well-defined** data.
+- Fast queries across linked tables.
+
+#### Common SQL Databases
+
+- **MySQL** – free, most widely used.
+- **MSSQL** – Microsoft SQL Server.
+- **Oracle** – highly reliable, enterprise-grade, expensive.
+- **PostgreSQL** – open-source, extensible.
+
+**Other examples**: SQLite, MariaDB, Amazon Aurora, Azure SQL.
+
+### Non-Relational Databases (NoSQL)
+
+#### Characteristics
+
+- No tables, rows, or schemas.
+- Highly **scalable** and **flexible**.
+- Used for unstructured or rapidly changing data.
+
+#### Four Storage Models
+
+1. **Key-Value**
+2. **Document-Based**
+3. **Wide-Column**
+4. **Graph**
+    
+
+**Key-Value Example:**
+
+- Data stored like JSON maps `{ "key": {...} }`.
+    
+
+#### Common NoSQL Databases
+
+- **MongoDB** – document-based, JSON storage.
+- **ElasticSearch** – optimized for search and analytics.
+- **Cassandra** – scalable, fault-tolerant.
+    
+
+Other examples: Redis, Neo4j, CouchDB, DynamoDB.
+
+### Database Use in Web Applications
+
+#### Integration
+
+- DB must be installed/configured on backend.
+- Languages/frameworks (PHP, Python, etc.) easily connect and query DBs.
+
+#### Example (PHP + MySQL)
+
+- Connect using `mysqli()`.
+- Create DB.
+- Query data.
+- Display results to user.
+
+#### User Input Example
+
+Search functionality builds SQL query using user input.
+
+**Risk:**
+
+- Unsafe handling → **SQL Injection**.
+
+
+## Development Frameworks & APIs
+
+### Development Frameworks 
+
+- Modern web apps are complex → frameworks simplify development.
+- Provide built-in features (e.g., login, user registration).
+- Common frameworks:
+    
+    - **Laravel (PHP)** – simple, popular with startups.
+    - **Express (NodeJS)** – used by PayPal, Yahoo, Uber.
+    - **Django (Python)** – used by Google, Instagram, Pinterest.
+    - **Rails (Ruby)** – used by GitHub, Hulu, Twitch, Airbnb.
+        
+- Big platforms often use **multiple frameworks + servers**.
+
+### APIs 
+
+APIs connect **front end ↔ back end** to exchange data and trigger functionality.
+
+### Query Parameters
+
+- Sent via **GET** (`/search.php?item=apple`) or **POST** (body data).
+- Allow passing input to a single page with flexible processing.
+    
+### Web APIs
+
+- Allow remote access to backend functionality via **HTTP**.
+- Used for retrieving or modifying application data.
+- Examples: Weather API, Twitter API.
+
+### API Standards
+
+#### SOAP
+
+- Uses **XML** for request/response.
+- Good for **structured** or **binary** data + **stateful** operations.
+- More complex, verbose.
+    
+#### REST
+
+- Uses **resource paths** (`/category/posts/`).
+- Returns mostly **JSON**.
+- Simple, modular, scalable.
+- Common HTTP methods:
+    
+    - **GET** → read
+    - **POST** → create
+    - **PUT** → replace/create
+    - **DELETE** → remove
+
+# Back End Vulnerabilities 
+## Common Web Vulnerabilities
+
+Web apps often contain vulnerabilities due to insecure coding or misconfiguration. These map to the **OWASP Top 10**.
+
+### Broken Authentication & Broken Access Control
+
+- **Broken Authentication:** Allows bypassing login or privilege escalation.  
+    _Example:_ Logging in with `' or 0=0 #` in CMS 1.2.
+    
+- **Broken Access Control:** Users access pages/features they shouldn’t (e.g., normal user accessing admin panel).
+    
+- High-risk, common issues.
+    
+### Malicious File Upload
+
+- Occurs when file upload functionality doesn’t properly validate files.
+- Attackers upload **web shells** (e.g., `.php` scripts) to gain server control.
+- Can bypass weak checks (e.g., double extension `shell.php.jpg`).
+- Example: WordPress Responsive Thumbnail Slider 1.0 → arbitrary file upload (Metasploit module exists).
+    
+### Command Injection
+
+- Happens when user input is passed into OS commands without sanitization.
+- Allows attackers to append commands (e.g., `| whoami`).
+- Leads to direct remote code execution on the server.
+- **Example**: WordPress Plainview Activity Monitor → inject commands via `ip` parameter.
+
+### SQL Injection (SQLi)
+
+- Occurs when user input is embedded in SQL queries unsafely.
+- Allows modifying queries, retrieving data, or achieving RCE  
+- Example vulnerable query
+- `select * from users where name like '%$searchInput%'`
+- CMS 1.2 uses SQLi for auth bypass and data extraction.
+
+## Public vulnerabilities
+
+### Overview
+
+- Back-end vulnerabilities exploitable **externally** can lead to full server compromise.
+- Usually caused by insecure coding in back-end components.
+
+### Public CVE Vulnerabilities
+
+- Public web apps (open-source/proprietary) are widely tested → many discovered vulnerabilities get **CVE IDs**.
+- Pentesters often publish **PoC exploits** → first step is to search for public exploits.
+
+### Steps to find exploits
+
+1. Identify the **web application version** (source code, version file, repo).
+2. Search for exploits: **Exploit-DB, Rapid7 DB, Vulnerability Lab**, Google, etc
+3. Prioritize:
+    
+    - CVSS **8–10**
+    - **Remote Code Execution (RCE)**
+        
+4. Also check vulnerabilities in **plugins**, **modules**, or other components used by the app.
+
+### Common Vulnerability Scoring System (CVSS)
+
+- Industry standard for rating vulnerability severity (0–10).
+- Uses **Base**, **Temporal**, and **Environmental** metrics.
+- NVD provides Base scores; orgs calculate extended scores using CVSS calculators (v2 & v3).
+
+### Severity Levels
+
+**CVSS v2**
+
+- Low: 0–3.9
+- Medium: 4–6.9
+- High: 7–10
+
+**CVSS v3**
+
+- None: 0
+- Low: 0.1–3.9
+- Medium: 4–6.9
+- High: 7–8.9
+- Critical: 9–10
+### Back-End Server Vulnerabilities
+
+- Web servers often expose severe public vulnerabilities (e.g., **Shellshock** affecting Apache in 2014).
+    
+- Must be patched because they allow remote exploitation over HTTP.
+
+### Server & Database Vulnerabilities
+
+- Typically exploited **after gaining local access** (internal testing or chained attacks).
+- Allow privilege escalation or lateral movement within the backend environment.
+- Still critical even if not externally exploitable.
+

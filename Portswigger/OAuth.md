@@ -376,6 +376,36 @@ You can log in with your own social media account using the following credential
 - *Lab solved*
 
 
+###  Flawed CSRF Protection (OAuth) 
+
+- OAuth flows _should_ use a **state** parameter as a CSRF token.
+- **state** must be:
+    
+    - Unguessable
+    - Tied to the user’s session
+    - Returned unchanged at the end of the OAuth flow
+        
+- Purpose:
+    
+    - Prevent attackers from forcing a victim to complete an OAuth flow they did not initiate.
+        
+
+#### If state is missing
+
+- OAuth flow becomes vulnerable to **CSRF-like attacks**.
+- Attacker can:
+    
+    1. Start their own OAuth flow (using their social media account).
+    2. Trick the victim into completing that flow.
+    3. Victim’s account gets **linked to attacker’s OAuth identity**.
+    
+#### Impact Example
+
+- Site supports login via password **or** social login (OAuth).
+- Without state:
+    
+    - Attacker binds victim’s local account to attacker’s social account.
+    - Attacker can then log in as the victim.
 
 
 #### Lab: Forced OAuth profile linking
@@ -406,5 +436,47 @@ You can log in to your own accounts using the following credentials:
 - This time capture the **access code grant request** and drop it and generate a csrf PoC and the PoC to exploit server
 - When the **admin visit that page** the social account will get **added to the admin account** 
 - We can **login** using the social account to get **admin access** and delete the carlos user 
+
+
+### Leaking Authorization Codes & Access Tokens 
+#### Core Problem
+
+- OAuth service fails to **validate redirect_uri** properly.
+- Attacker can supply a malicious redirect_uri to **capture codes or tokens** sent through the victim’s browser.
+
+#### How the Attack Works
+
+- Authorization responses (codes/tokens) are sent to the URL in **redirect_uri**.
+- If redirect_uri is weakly validated:
+    
+    - Attacker tricks victim into initiating an OAuth flow.
+    - Code/token gets sent to an **attacker-controlled URL**.
+        
+
+#### Authorization Code Flow Impact
+
+- Attacker steals **authorization code** before use.
+- Attacker sends stolen code to the **legitimate client /callback** endpoint.
+- Client application:
+    
+    - Exchanges code → token
+    - Logs attacker in as the _victim_ (session is already valid)
+        
+- No need for attacker to know:
+    
+    - Client secret
+    - Resulting access token
+
+#### Impact
+
+- Full account takeover on any client app linked to this OAuth provider.
+- Attacker gains victim’s data and access to all connected services.
+    
+
+#### Important Note
+
+- **state or nonce does NOT prevent this attack**
+    
+    - Attacker can generate valid state/nonce values from their own browser.
 
 
