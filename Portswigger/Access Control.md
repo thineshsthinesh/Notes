@@ -112,7 +112,7 @@ Solve the lab by deleting the user `carlos`.
 - Obscurity ≠ security.
 - Access control must be **enforced server-side**, not hidden client-side.
 
-## # Lab: Unprotected admin functionality with unpredictable URL
+##  Lab: Unprotected admin functionality with unpredictable URL
 #lab #bac 
 
 *APPRENTICE*
@@ -139,5 +139,80 @@ var adminPanelTag = document.createElement('a'); adminPanelTag.setAttribute('hre
 - We got access to the **admin panel** 
 - Delete the **carlos** user 
 - Done 
+
+## Parameter-Based Access Control 
+
+### What it is
+
+Some applications assign a user’s role or permissions at login, then store that role in a **user-controllable location**, such as:
+
+- Hidden form fields
+- Cookies
+- Query-string parameters
+
+Example URLs:
+
+`https://insecure-website.com/login/home.jsp?admin=true https://insecure-website.com/login/home.jsp?role=1`
+
+---
+
+### Why it's insecure
+
+- Users can **modify** these values.
+- Application then incorrectly grants access based on tampered parameters.
+- Leads to unauthorized access, such as:
+    
+    - Accessing admin panels
+    - Performing privileged actions
+        
+### Key issue
+
+- Access control must be enforced **server-side**, not based on client-modifiable values.
+
+## Lab: User role controlled by request parameter
+
+*APPRENTICE*
+
+LAB **Solved**
+
+This lab has an admin panel at `/admin`, which identifies administrators using a forgeable cookie.
+
+Solve the lab by accessing the admin panel and using it to delete the user `carlos`.
+
+You can log in to your own account using the following credentials: `wiener:peter`
+
+### Writeup : 
+
+- Open and login using the given credentials 
+- When seeing the cookies there is a **Admin** which is said to **false**
+- Change that to **true** and access **/admin**
+- Delete **carlos** user lab solved 
+- Done 
+
+## Lab: User role can be modified in user profile
+
+*APPRENTICE*
+
+LAB **Solved**
+
+This lab has an admin panel at `/admin`. It's only accessible to logged-in users with a `roleid` of 2.
+
+Solve the lab by accessing the admin panel and using it to delete the user `carlos`.
+
+You can log in to your own account using the following credentials: `wiener:peter`
+
+
+### Writeup :
+
+- Run **burpsuite on the background** and login in to the application using given credentials
+- There is a **email change** feature when changing email it responds with role id which is interesting 
+- with the email on the **change email** request add **"roleid" : 2** to try to change our role id 
+- It successfully got changed and we got access to **/admin** page 
+- Delete the **carlos** user 
+- Done 
+
+
+
+
 
 
