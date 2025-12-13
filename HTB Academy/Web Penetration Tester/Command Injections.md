@@ -178,3 +178,103 @@
     - Additional command output appears in response.
 - Custom HTTP requests easily bypass client-side controls.
 
+## Other Injection Operators 
+
+### AND Operator (`&&`)
+
+**Behavior**
+
+- Executes the second command **only if the first succeeds** (exit code `0`).
+
+**Payload**
+
+`127.0.0.1 && whoami`
+
+**Executed Command**
+
+`ping -c 1 127.0.0.1 && whoami`
+
+**Result**
+
+- Both commands execute successfully.
+- Injection confirmed when both outputs appear.
+
+**Note**
+
+- If the first command fails, the second command will **not** run.
+
+### OR Operator (`||`)
+
+**Behavior**
+
+- Executes the second command **only if the first fails** (exit code `!= 0`).
+
+#### Case 1: First command succeeds
+
+`ping -c 1 127.0.0.1 || whoami`
+
+- `ping` succeeds → `whoami` not executed.
+    
+
+#### Case 2: First command fails
+
+**Payload**
+
+`|| whoami`
+
+**Executed Command**
+
+`ping -c 1 || whoami`
+
+**Result**
+
+- `ping` fails → `whoami` executes.
+- Cleaner output (only injected command result).
+
+**Use Case**
+
+- Useful when injected payload breaks original command.
+- Helps ensure execution of attacker command.
+    
+### Why Operator Choice Matters
+
+- Different operators affect:
+    
+    - Execution flow
+    - Output visibility
+    - Reliability of injection
+        
+- Choosing the right operator can:
+    
+    - Reduce noise
+    - Improve payload success
+    - Bypass basic filtering
+
+## Common Injection Operators by Type
+
+|Injection Type|Common Operators|
+|---|---|
+|SQL Injection|`' ; -- /* */`|
+|Command Injection|`; &&`|
+|OS Command Injection|`; &|
+|LDAP Injection|`* ( ) &|
+|XPath Injection|`' or and not substring concat count`|
+|Code Injection|`' ; -- /* */ $() ${} #{} %{} ^`|
+|Directory Traversal|`../ ..\\ %00`|
+|Object Injection|`; &|
+|XQuery Injection|`' ; -- /* */`|
+|Shellcode Injection|`\x \u %u %n`|
+|Header Injection|`\n \r\n \t %0d %0a %09`|
+
+### Key Takeaways
+
+- `&&` → second command runs on success.
+- `||` → second command runs on failure.
+- OR-based payloads can give **cleaner results**.
+- Injection operators are **reusable across multiple vulnerability types**.
+- Operator effectiveness depends on:
+    
+    - OS
+    - Shell
+    - Application behavior
+
