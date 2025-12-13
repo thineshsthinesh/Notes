@@ -301,3 +301,131 @@ To solve the lab, log in using the credentials `wiener:peter` and exploit the fl
 - We then use the URL to make a request to **/admin-roles?username=wiener&action=upgrade**
 - Done 
 
+
+## URL-Matching Discrepancies
+
+**Issue**
+
+- Different components may interpret request paths differently.
+- Access control may fail if endpoint matching is inconsistent.
+
+**Common Causes**
+
+- **Case sensitivity mismatch**
+    
+    - `/ADMIN/DELETEUSER` mapped to `/admin/deleteUser`
+    - Backend tolerant, access control strict → bypass
+        
+- **Spring `useSuffixPatternMatch`**
+    
+    - Enabled by default prior to Spring 5.3
+    - `/admin/deleteUser.anything` maps to `/admin/deleteUser`
+    - Access control may not apply correctly to suffixed paths
+        
+- **Trailing slash handling**
+    
+    - `/admin/deleteUser` vs `/admin/deleteUser/`
+    - Treated as different endpoints on some systems
+    - Appending `/` may bypass restrictions
+
+**Impact**
+
+- Unauthorized access to protected functionality due to path normalization differences.
+    
+## Horizontal Privilege Escalation
+
+**Definition**
+
+- A user accesses resources belonging to another user of the same privilege level.
+
+**Example**
+
+`https://insecure-website.com/myaccount?id=123`
+
+- Changing `id=123` to another user’s ID may expose their data.
+
+**Typical Cause**
+
+- Missing authorization checks on user-controlled identifiers.
+
+**Vulnerability Type**
+
+- **IDOR (Insecure Direct Object Reference)**
+    
+    - Direct use of user-supplied parameters to access resources
+    - No validation that the resource belongs to the authenticated user
+
+**Impact**
+
+- Unauthorized data access
+- Account data exposure
+- Abuse of user-specific functionality
+
+# Lab: User ID controlled by request parameter
+
+*APPRENTICE*
+
+LAB **Solved**
+
+
+This lab has a horizontal privilege escalation vulnerability on the user account page.
+
+To solve the lab, obtain the API key for the user `carlos` and submit it as the solution.
+
+You can log in to your own account using the following credentials: `wiener:peter`
+
+### Writeup: 
+
+- Login using the given credentials on **my account** 
+- Notice the GET request https://0a59008503b2ef5f802c4954003c0024.web-security-academy.net/my-account?id=wiener 
+- Change the id parameter to **carlos** we got acess as carlos 
+- submit the API key of carlos 
+- Done 
+
+## Unpredictable Identifiers (GUIDs) — Security Note
+
+- Some applications use **globally unique identifiers (GUIDs)** instead of predictable values (e.g., incrementing IDs) to reference users or objects.
+- This design **reduces the risk of ID guessing and enumeration**, as GUIDs are not easily predictable.
+- However, **security depends on secrecy**, not just randomness.
+    
+
+**Key Risk**
+
+- GUIDs may be **disclosed elsewhere in the application**, such as:
+    
+    - User messages
+    - Reviews or comments
+    - Activity feeds
+    - Public profiles or logs
+        
+**Impact**
+
+- If an attacker can obtain another user’s GUID, they may:
+    
+    - Access or manipulate that user’s data
+    - Bypass access controls
+        
+- This leads to **Insecure Direct Object Reference (IDOR)** vulnerabilities.
+
+## Lab: User ID controlled by request parameter, with unpredictable user IDs
+
+*APPRENTICE*
+
+LAB **Solved**
+
+This lab has a horizontal privilege escalation vulnerability on the user account page, but identifies users with GUIDs.
+
+To solve the lab, find the GUID for `carlos`, then submit his API key as the solution.
+
+You can log in to your own account using the following credentials: `wiener:peter`
+
+### Writeup 
+
+- Login using given credentials 
+- Notice that the **my-account** has id parameter which GUID (Globally Unique identifier)
+- Just explore the website it seems there is a post where **carlos** is the author 
+- Clicking on it revealed a id parameter 
+- replace the **my-account** id with the new found id and we got access to **carlos** dashboard 
+- Copy the API key and submit 
+- Done 
+
