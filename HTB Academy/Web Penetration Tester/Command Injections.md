@@ -94,18 +94,16 @@
 
 ### Command Injection Operators
 
-|Operator|Character|URL-Encoded|Execution Behavior|
-|---|---|---|---|
-|Semicolon|`;`|`%3b`|Executes both commands|
-|New Line|`\n`|`%0a`|Executes both commands|
-|Background|`&`|`%26`|Both (second often first output)|
-|Pipe|`|`|`%7c`|
-|AND|`&&`|`%26%26`|Second runs if first succeeds|
-|OR|`||`|
-|Sub-shell|`` `cmd` ``|`%60%60`|Both (Linux only)|
-|Sub-shell|`$(cmd)`|`%24%28%29`|Both (Linux only)|
-
----
+| Operator   | Character   | URL-Encoded | Execution Behavior               |
+| ---------- | ----------- | ----------- | -------------------------------- |
+| Semicolon  | `;`         | `%3b`       | Executes both commands           |
+| New Line   | `\n`        | `%0a`       | Executes both commands           |
+| Background | `&`         | `%26`       | Both (second often first output) |
+| Pipe       | `           | `           | `%7c`                            |
+| AND        | `&&`        | `%26%26`    | Second runs if first succeeds    |
+| OR         | `           |             | `                                |
+| Sub-shell  | `` `cmd` `` | `%60%60`    | Both (Linux only)                |
+| Sub-shell  | `$(cmd)`    | `%24%28%29` | Both (Linux only)                |
 
 ### Key Notes
 
@@ -250,7 +248,7 @@
     - Improve payload success
     - Bypass basic filtering
 
-## Common Injection Operators by Type
+### Common Injection Operators by Type
 
 |Injection Type|Common Operators|
 |---|---|
@@ -277,4 +275,121 @@
     - OS
     - Shell
     - Application behavior
+
+
+# Filter Evasion 
+
+## Identifying Filters 
+### Why Filters Exist
+
+Applications often try to stop injections by:
+
+- **Blacklisting characters** (`;`, `|`, `&`, etc.)
+- **Blacklisting commands** (`whoami`, `ls`, `cat`, etc.)
+- Using a **WAF (Web Application Firewall)**
+
+Even with these defenses, poor implementation often makes them bypassable.
+### Detecting Filter / WAF Behavior
+
+#### Observation
+
+- Payloads like:
+
+	`127.0.0.1; whoami 
+	`127.0.0.1 && whoami `
+	`127.0.0.1 || whoami``
+
+now return:
+
+- `Invalid input`
+
+#### What this tells us
+
+- The request **reaches the backend**
+- The backend **detects something malicious**
+- The response is rendered inside the app UI → **likely application-level filtering**
+- A full block page or IP warning would suggest a **WAF**
+
+### Breaking Down the Payload
+
+Original payload:
+
+`127.0.0.1; whoami`
+
+Components:
+
+1. Valid IP → allowed
+2. `;` → suspicious
+3. Space → suspicious
+4. `whoami` → suspicious command
+
+So the block is caused by **characters, commands, or both**.
+
+### Identifying Blacklisted Characters
+
+#### Strategy: Binary Reduction
+
+Remove parts of the payload until it works.
+#### Step 1: Test base input
+
+`127.0.0.1`
+
+✅ Works
+
+### Step 2: Add one character at a time
+
+`127.0.0.1;`
+
+❌ **Invalid input**
+
+**Conclusion**
+
+- `;` is **blacklisted**
+    
+## What This Means
+
+- The filter is likely doing something like:
+
+	`$blacklist = [';', '&', '|', ...]; if (strpos($_POST['ip'], $char) !== false) {     echo "Invalid input"; }`
+
+- The check is:
+    
+    - Simple
+    - Character-based
+    - Not context-aware
+
+This is **good news** from an attacker’s perspective.
+
+### Next Logical Tests
+
+You should now test **each operator individually**:
+
+| Operator       | Expected Result |
+| -------------- | --------------- |
+| `;`            | ❌ blocked       |
+| `&&`           | ❓               |
+| `              |                 |
+| `              | `               |
+| `&`            | ❓               |
+| newline `%0a`  | ❓               |
+| subshell `$()` | ❓               |
+
+This tells you:
+
+- Which operators are filtered
+- Which are still usable
+- Whether encoding helps
+### Key Takeaways
+
+- “Invalid input” ≠ safe application
+- Blacklists are:
+    
+    - Easy to fingerprint
+    - Easy to bypass
+    
+- Always:
+    
+    - Reduce payloads
+    - Test one character at a time
+    - Compare behavior
 
