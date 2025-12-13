@@ -120,3 +120,61 @@
     - `;` does **not** work in Windows CMD
     - Works in Windows PowerShell
 
+## Injecting Commands
+
+### Basic Injection Attempt
+
+**Payload**
+
+`127.0.0.1; whoami`
+
+**Resulting Command**
+
+`ping -c 1 127.0.0.1; whoami`
+
+- `;` executes both commands sequentially.
+- Verified locally: both `ping` output and `whoami` output are returned.
+
+### Front-End Validation Encountered
+
+- Web app rejects input not matching IP format.
+- Error appears **without a new HTTP request**.
+- Network tab shows **no request sent** → validation is client-side only.
+
+**Conclusion**
+
+- Input validation is enforced on the **front-end**, not the back-end.
+### Bypassing Front-End Validation
+
+**Method**
+
+- Intercept and modify requests using a web proxy (Burp/ZAP).
+
+**Steps**
+
+1. Configure browser to proxy traffic.
+2. Submit a valid IP (e.g. `127.0.0.1`) via UI.
+3. Intercept request.
+4. Send to Repeater.
+5. Modify parameter to injected payload:
+	 `127.0.0.1; whoami`
+6. URL-encode payload.
+7. Send request directly to back-end.
+
+### Successful Injection
+
+- Response includes:
+    
+    - Normal `ping` output
+    - Output of injected command (`whoami`)
+        
+- Confirms **OS Command Injection vulnerability**.
+
+### Key Takeaways
+
+- Front-end validation **does not protect** against injections.
+- Back-end input must be sanitized and validated.
+- Command injection is confirmed when:
+    - Additional command output appears in response.
+- Custom HTTP requests easily bypass client-side controls.
+
