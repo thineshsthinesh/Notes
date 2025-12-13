@@ -361,7 +361,7 @@ To solve the lab, log in using the credentials `wiener:peter` and exploit the fl
 - Account data exposure
 - Abuse of user-specific functionality
 
-# Lab: User ID controlled by request parameter
+## Lab: User ID controlled by request parameter
 
 *APPRENTICE*
 
