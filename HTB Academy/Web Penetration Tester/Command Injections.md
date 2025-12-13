@@ -851,9 +851,7 @@ If it works locally but fails in a web app, common reasons are:
 
 `C:\> typ%TEMP:~-3,-2% ...`
 
----
-
-## Cross-Platform Tip
+### Cross-Platform Tip
 
 - You can run **Invoke-DOSfuscation on Linux** using PowerShell:
     
@@ -862,26 +860,141 @@ If it works locally but fails in a web app, common reasons are:
 
 (It’s preinstalled in **HTB Pwnbox**)
 
----
-
-## Key Takeaways
+### Key Takeaways
 
 - **Automated obfuscators** are best against:
     
     - Regex-based filters
-        
     - Static blacklists
-        
     - Signature-based WAF rules
         
 - Always tune output for:
     
     - Length limits
-        
     - Blocked characters
-        
     - Allowed encodings
         
 - Obfuscation ≠ exploitation
     
     - You still need a valid injection point
+
+# Prevention 
+
+## Command Injection Prevention
+
+Now that we understand how command injection works **and** how filters are bypassed, prevention must focus on **secure design**, not reactive blacklists.
+
+### 1. Avoid System Command Execution
+
+**Best defense:**  
+-  **Do not execute OS commands at all** when handling user input.
+- Most languages provide **safe, built-in APIs** for common tasks.
+- Example: Instead of `ping` via system calls, use socket/network APIs.
+
+**PHP example (safe alternative):**
+
+`fsockopen($host, 80, $errno, $errstr, 5);`
+
+✔ No shell  
+✔ No command parsing  
+✔ No injection surface
+
+**If system commands are unavoidable:**
+
+- Never pass raw or partially trusted user input
+- Minimize usage
+- Combine with strict validation + sanitization
+
+### 2. Input Validation (First Line of Defense)
+
+Validation ensures input **matches an expected format**.
+
+#### PHP (IP validation)
+
+`if (filter_var($_GET['ip'], FILTER_VALIDATE_IP)) {     // safe to proceed } else {     // reject }`
+
+#### JavaScript / NodeJS (Regex)
+
+`if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(...)\.(...)\.(...)$/.test(ip)) {     // proceed } else {     // reject }`
+
+✔ Always validate on **backend**  
+❌ Front-end validation alone is useless
+
+### 3. Input Sanitization (Most Critical)
+
+Sanitization removes **unnecessary special characters**, even after validation.
+
+#### PHP (allow only IP-safe characters)
+
+`$ip = preg_replace('/[^A-Za-z0-9.]/', '', $_GET['ip']);`
+
+#### JavaScript
+
+`ip = ip.replace(/[^A-Za-z0-9.]/g, '');`
+
+#### NodeJS (DOMPurify)
+
+`import DOMPurify from 'dompurify'; ip = DOMPurify.sanitize(ip);`
+
+✔ Prefer **allowlists**, not blacklists  
+❌ Blacklisting (`; | && whoami`) is trivial to bypass
+
+### 4. Escaping Is Not Enough
+
+Functions like:
+
+- `escapeshellcmd()` (PHP)
+- `escape()` (NodeJS)
+
+⚠️ **Not sufficient alone**
+
+- Can still be bypassed with encoding, variable expansion, or shell tricks
+- Use **only as a last layer**, never as the primary defense
+
+### 5. Secure Server Configuration (Damage Reduction)
+
+Even with secure code, assume failure and **limit blast radius**.
+#### Recommended Hardening
+
+- **Enable WAF**
+    
+    - Apache `mod_security`
+    - External WAFs (Cloudflare, Imperva, Fortinet)
+        
+- **Principle of Least Privilege**
+    
+    - Run web server as low-privileged user (`www-data`)
+        
+- **Disable dangerous functions**
+    
+		`disable_functions = system, exec, shell_exec, passthru`
+    
+- **Restrict filesystem access**
+    
+
+		 `open_basedir = /var/www/html`
+    
+- **Reject suspicious requests**
+    
+    - Double-encoded input
+    - Non-ASCII URLs
+        
+- **Remove outdated / dangerous modules**
+    
+    - PHP CGI
+    - Legacy extensions
+    
+### 6. Defense-in-Depth Mindset
+
+✔ Secure coding  
+✔ Input validation  
+✔ Input sanitization  
+✔ Server hardening  
+✔ WAF  
+✔ Regular penetration testing
+
+**Why testing still matters**
+
+- Large codebases = inevitable mistakes
+- One unsafe call is enough for full compromise
+
