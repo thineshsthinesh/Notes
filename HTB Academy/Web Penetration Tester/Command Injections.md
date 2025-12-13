@@ -60,3 +60,63 @@
 - Same exploitation techniques apply across platforms.
 - Any function executing OS commands with unsanitized input is a potential attack surface.
 
+# Exploitation 
+
+## Detection
+### Detection Principle
+
+- **Detection = Exploitation** for basic OS Command Injection.
+- Inject additional commands and observe **changes in output**.
+- If output deviates from normal behavior, command injection exists.
+- Focus here is on **basic command injection**:
+    
+    - User input is directly passed to an OS command execution function
+    - No sanitization or escaping is applied
+
+### Detection Scenario
+
+- Application provides a **Host Checker** utility.
+- User supplies an IP address.
+- Output resembles a `ping` command result.
+
+**Likely back-end command**
+
+	`ping -c 1 OUR_INPUT`
+
+- If input is unsanitized, additional commands may be injected.
+
+### Command Injection Detection Method
+
+1. Provide **expected input** (e.g., IP address).
+2. Append an **injection operator**.
+3. Append a **new command**.
+4. Observe response/output changes.
+
+### Command Injection Operators
+
+|Operator|Character|URL-Encoded|Execution Behavior|
+|---|---|---|---|
+|Semicolon|`;`|`%3b`|Executes both commands|
+|New Line|`\n`|`%0a`|Executes both commands|
+|Background|`&`|`%26`|Both (second often first output)|
+|Pipe|`|`|`%7c`|
+|AND|`&&`|`%26%26`|Second runs if first succeeds|
+|OR|`||`|
+|Sub-shell|`` `cmd` ``|`%60%60`|Both (Linux only)|
+|Sub-shell|`$(cmd)`|`%24%28%29`|Both (Linux only)|
+
+---
+
+### Key Notes
+
+- Injection operators work **across languages and frameworks**.
+- Applicable to:
+    
+    - PHP, NodeJS, .NET, etc.
+    - Linux, Windows, macOS back-ends
+        
+- **Exception**:
+    
+    - `;` does **not** work in Windows CMD
+    - Works in Windows PowerShell
+
