@@ -283,7 +283,7 @@ that deletes the **Carlos** user and we got access
 - If attacker uses **GET (or another method)** on a restricted URL, they can **bypass platform-layer access control**.
 - Done
 
-# Lab: Method-based access control can be circumvented
+## Lab: Method-based access control can be circumvented
 
 *PRACTITIONER*
 
