@@ -592,3 +592,68 @@ Command:
     - Filtering happens **before shell expansion**
     - The shell reconstructs characters **after validation**
 
+## Bypassing Blacklisted Commands 
+
+**Problem**
+
+- Applications may block **specific command words** (e.g., `whoami`, `cat`) using blacklist matching.
+- Even if special characters are bypassed, execution fails once a blacklisted command appears.
+
+**Typical Blacklist Logic**
+
+- Exact string matching (e.g., `strpos(input, "whoami")`)
+- Does **not** account for obfuscated equivalents.
+### Core Bypass Idea
+
+**Obfuscate the command so it executes the same way but does not match the blacklist string.**
+
+### Cross-Platform (Linux & Windows)
+
+### Quote Injection (Shell-ignored characters)
+
+- Shells ignore quotes inside command names if balanced.
+
+**Examples**
+
+`w'h'o'am'i`
+`w"h"o"am"i`
+
+**Rules**
+
+- Do not mix quote types
+- Quotes must be balanced (even count
+
+✔ Executes `whoami`  
+✔ Bypasses exact-match blacklists
+
+### Linux-Only Techniques
+
+#### Positional Parameter Injection
+
+`who$@ami`
+### Backslash Injection
+
+`w\ho\am\i`
+
+- Bash ignores `$@` and `\` during command parsing
+- Characters can be inserted anywhere
+- No requirement for even count
+### Windows-Only Techniques
+
+#### Caret (`^`) Injection
+
+`who^ami`
+
+- CMD ignores `^` during execution
+- Common Windows blacklist bypass
+### Key Takeaways
+
+- Blacklists rely on **literal string matching**
+- Shell parsing happens **after filtering**
+- Obfuscation changes appearance, not behavior
+- Works across:
+    
+    - Command Injection
+    - RCE
+    - Filter-based WAF rules
+
