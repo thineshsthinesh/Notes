@@ -429,3 +429,73 @@ You can log in to your own account using the following credentials: `wiener:pete
 - Copy the API key and submit 
 - Done 
 
+
+## Lab: User ID controlled by request parameter with data leakage in redirect
+
+*APPRENTICE*
+
+LAB **Solved**
+
+
+This lab contains an access control vulnerability where sensitive information is leaked in the body of a redirect response.
+
+To solve the lab, obtain the API key for the user `carlos` and submit it as the solution.
+
+You can log in to your own account using the following credentials: `wiener:peter`
+
+### Writeup 
+
+- Login using the given credentials 
+- notice the dashboard has the parameter id set to **wiener** 
+- Change that to **carlos** and intercept the response it contains the **API Key** of carlos 
+- submit the **API Key**
+- Done 
+
+## Horizontal → Vertical Privilege Escalation
+
+- **Horizontal escalation**: Accessing another user’s account at the same privilege level.
+- **Vertical escalation**: Gaining higher privileges (e.g., admin access).
+
+**Link between them**
+
+- Horizontal access can be leveraged to compromise a **more privileged user**.
+- If the targeted user is an **administrator**, horizontal → vertical escalation occurs.
+
+**Common technique**
+
+- **Parameter tampering**:
+
+		/myaccount?id=456`
+    
+    - Changing `id` to another user’s ID.
+
+**Impact when targeting admin**
+
+- Access to admin account page.
+- Possible outcomes:
+    
+    - View or reset admin password.
+    - Change admin account details.
+    - Direct access to privileged/admin-only functionality.
+## Lab: User ID controlled by request parameter with password disclosure
+
+*APPRENTICE*
+
+LAB **Solved**
+
+
+This lab has user account page that contains the current user's existing password, prefilled in a masked input.
+
+To solve the lab, retrieve the administrator's password, then use it to delete the user `carlos`.
+
+You can log in to your own account using the following credentials: `wiener:peter`
+
+### Writeup
+
+- Login in using the given credentials 
+- there is a **change password** feature which pre filled the password 
+- Change the **id** from **wiener** to **administrator** 
+- The **admin password** is leaked on the page 
+- Login using **admin credentials** 
+- Access the **admin panel** and delete the **carlos** user 
+
