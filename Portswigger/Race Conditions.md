@@ -52,7 +52,7 @@
 - Single-packet attack allows **20–30 requests in one TCP packet**, reducing network jitter.
 - Sending many requests helps overcome **server-side latency (jitter)** during discovery.
 
-### Lab: Limit overrun race conditions
+## Lab: Limit overrun race conditions
 
 *APPRENTICE*
 
@@ -66,4 +66,21 @@ To solve the lab, successfully purchase a **Lightweight L33t Leather Jacket**.
 You can log in to your account with the following credentials: `wiener:peter`.
 
 For a faster and more convenient way to trigger the race condition, we recommend that you solve this lab using the [Trigger race conditions](https://github.com/PortSwigger/bambdas/blob/main/CustomAction/ProbeForRaceCondition.bambda) custom action. This is only available in Burp Suite Professional.
+
+### Writeup 
+
+- Log in to the application 
+- Add the leather jacket to the cart 
+-  apply the **promo code** and **intercept the request** 
+- send the **request to repeater** 
+- duplicate the repeater tap multiple times using **Ctrl + R** 
+- right click on a **repeater tab** and select **move tab to group** -> **create group tab** 
+- and select all the tabs to create them as group 
+- on the send button options select **send group (parallel)**
+- Which will **send all the tabs at once** 
+- Which causes the coupon to work multiple times 
+- And price lowers 
+- Buy the product for lower price 
+- Done 
+
 
