@@ -499,3 +499,122 @@ You can log in to your own account using the following credentials: `wiener:pete
 - Login using **admin credentials** 
 - Access the **admin panel** and delete the **carlos** user 
 
+
+
+## Insecure Direct Object References (IDOR) 
+
+- IDOR is a **type of access control vulnerability**.
+- Occurs when an application **uses user-supplied input to directly access objects**.
+- An attacker can **modify this input** to gain **unauthorized access** to other objects.
+- Results from **improper access control enforcement**.
+- Popularized through inclusion in the **OWASP Top Ten (2007)**.
+- Represents a common **implementation flaw** that enables **access control bypass**.
+
+
+## Lab: Insecure direct object references
+
+*APPRENTICE*
+
+LAB **Solved**
+
+This lab stores user chat logs directly on the server's file system, and retrieves them using static URLs.
+
+Solve the lab by finding the password for the user `carlos`, and logging into their account.
+
+
+### Writeup
+
+- There is **live chat** feature which seems to store the chats 
+- while inspecting through burp found out that it uses **numbers** to **identify** different user chats 
+- Also there is **download feature** at the endpoint **/download-transcript/2.txt** 
+- by changing the **2** to **1** we got **carlos** user's chat which leaks the password of that user 
+- Login using that password 
+- Done 
+
+
+## Access Control Vulnerabilities in Multi-Step Processes 
+
+- Occur when **multi-step workflows** have **inconsistent access control enforcement**.
+- Common in processes requiring **multiple inputs** or **review/confirmation steps**.
+- Some steps may be **properly protected**, while others are **left unprotected**.
+- Applications may **incorrectly assume step order** is always followed.
+- Attackers can **skip protected steps** and directly access an **unprotected later step**.
+- Results in **unauthorized execution of sensitive actions** by submitting required parameters directly.
+
+## Lab: Multi-step process with no access control on one step
+
+*PRACTITIONER*
+
+LAB **Solved**
+
+This lab has an admin panel with a flawed multi-step process for changing a user's role. You can familiarize yourself with the admin panel by logging in using the credentials `administrator:admin`.
+
+To solve the lab, log in using the credentials `wiener:peter` and exploit the flawed access controls to promote yourself to become an administrator.
+
+
+### Writeup 
+
+- As instructed login using **admin credentials** 
+- there is **promotion feature** which can upgrade users 
+- It requires confirmation next as well 
+- We just inspect the whole flow on burp 
+- It seems the whole process involves **3 stages** 
+	1. **Access to admin panel** 
+	2. **Select user and operation** 
+	3. **confirmation** 
+- We just login using our own account and repeat the final **POST** request 
+- with the data "**action=upgrade&confirmed=true&username=wiener**" to **/admin-roles** page 
+- We are now admin 
+- Done
+
+## Referer-Based Access Control
+
+- Access control decisions are based on the **HTTP Referer header**.
+- Referer indicates the **page that initiated the request**.
+- Main page (e.g., `/admin`) may be **properly protected**, while sub-pages rely only on Referer checks.
+- Applications **trust the Referer header** instead of enforcing real authorization.
+- The Referer header is **fully attacker-controlled**.
+- Attackers can **forge requests with a fake Referer** to access **sensitive endpoints**.
+- Leads to **unauthorized access to protected functionality**.
+
+## Lab: Referer-based access control
+
+*PRACTITIONER*
+
+LAB **Solved**
+
+
+This lab controls access to certain admin functionality based on the Referer header. You can familiarize yourself with the admin panel by logging in using the credentials `administrator:admin`.
+
+To solve the lab, log in using the credentials `wiener:peter` and exploit the flawed access controls to promote yourself to become an administrator.
+
+### Writeup
+
+- Use admin credentials to **all the functionality** and run **burp** in the background
+- There is a **user promotion function** which is interesting 
+- **upgrade** carlos user to admin 
+- inspect the traffic there is a traffic to **/admin-roles?username=carlos&action=upgrade**
+- Now login with the normal user credentials 
+- Make request such that **/admin-roles?username=wiener&action=upgrade**
+- We got "unauthorized"  as response 
+- Try changing the Referer header to match the admin request as abc.web-security-academy.net/admin
+- It went through and we became **admin** 
+- Done 
+
+
+## Location-Based Access Control
+
+- Access control is enforced based on the **user’s geographical location**.
+- Common in **banking** and **media services** due to legal or business restrictions.
+- Can often be **bypassed using VPNs, web proxies**, or **client-side geolocation manipulation**.
+- Relies on **weak trust assumptions** about user location.
+
+## Preventing Access Control Vulnerabilities 
+
+- Do **not rely on obfuscation** as a security control
+- **Deny access by default** unless a resource is explicitly public.
+- Use a **centralized, application-wide access control mechanism**.
+- Require developers to **explicitly define allowed access** for each resource.
+- **Audit and test access controls** regularly to verify correct behavior.
+
+
